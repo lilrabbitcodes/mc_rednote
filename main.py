@@ -266,7 +266,11 @@ def get_audio_url(text):
         
         if text in audio_urls:
             file_id = audio_urls[text]
-            return f"https://drive.google.com/uc?export=download&id={file_id}"
+            # Get the audio data directly using requests
+            url = f"https://drive.google.com/uc?id={file_id}"
+            response = requests.get(url)
+            if response.status_code == 200:
+                return response.content
         return None
     except:
         return None
@@ -542,13 +546,13 @@ def main():
         """, unsafe_allow_html=True)
         
         # Simple audio player with just a play button
-        audio_url = get_audio_url(current_card["chinese"])
-        if audio_url:
+        audio_data = get_audio_url(current_card["chinese"])
+        if audio_data:
             # Center the play button
             col1, col2, col3 = st.columns([1,2,1])
             with col2:
                 if st.button("🔊 Play", key="play_button"):
-                    st.audio(audio_url, format='audio/mp3')
+                    st.audio(audio_data, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
