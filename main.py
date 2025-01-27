@@ -5,13 +5,22 @@ import hashlib
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Try importing gTTS with error handling
+# At the top of the file, add more detailed error handling
 try:
     from gtts import gTTS
     AUDIO_ENABLED = True
-except ImportError:
+except ImportError as e:
     AUDIO_ENABLED = False
-    st.warning("Audio functionality is not available. Please check gTTS installation.")
+    st.error(f"Detailed error: {str(e)}")
+    st.warning("Audio functionality is not available. Installing required packages...")
+    try:
+        import subprocess
+        subprocess.check_call(["pip", "install", "gTTS==2.5.0", "click>=7.0"])
+        from gtts import gTTS
+        AUDIO_ENABLED = True
+        st.success("Successfully installed audio packages!")
+    except Exception as e:
+        st.error(f"Failed to install packages: {str(e)}")
 
 # CSS styles
 st.markdown("""
