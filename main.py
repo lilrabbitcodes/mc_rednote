@@ -11,19 +11,6 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Now we can add the code to hide Streamlit elements
-st.markdown("""
-    <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        .stDeployButton {display: none;}
-        .viewerBadge_container__1QSob {display: none;}
-        .viewerBadge_link__1QSob {display: none;}
-        button[title="View fullscreen"] {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
-
 # At the top of the file, add more detailed error handling
 try:
     from gtts import gTTS
