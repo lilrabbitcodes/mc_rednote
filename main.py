@@ -14,7 +14,7 @@ st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 # Hide Streamlit elements and adjust layout
 st.markdown("""
     <style>
-        /* Hide Streamlit elements completely */
+        /* Hide all Streamlit elements */
         footer {display: none !important;}
         #MainMenu {display: none !important;}
         header {display: none !important;}
@@ -23,7 +23,33 @@ st.markdown("""
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
         .reportview-container .main footer {display: none !important;}
+        iframe[title="streamlit_footer"] {display: none !important;}
         
+        /* Audio player centering */
+        div.stAudio {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            margin: 10px auto !important;
+        }
+        
+        div.stAudio > audio {
+            width: 120px !important;
+            height: 35px !important;
+            margin: 0 auto !important;
+        }
+        
+        /* Center audio on mobile */
+        @media (max-width: 640px) {
+            div.stAudio {
+                padding: 0 !important;
+            }
+            div.stAudio > audio {
+                margin: 0 auto !important;
+            }
+        }
+
         /* Container */
         .main .block-container {
             padding: 1rem !important;
@@ -76,18 +102,6 @@ st.markdown("""
             margin: 5px 0 10px 0 !important;
             text-align: center !important;
             padding: 0 15px !important;
-        }
-        
-        /* Audio player */
-        div.stAudio {
-            display: flex !important;
-            justify-content: center !important;
-            margin: 5px auto !important;
-        }
-        
-        div.stAudio > audio {
-            width: 100px !important;
-            height: 35px !important;
         }
         
         /* Button styling */
@@ -652,7 +666,9 @@ def main():
         # Audio below pinyin
         audio_bytes = get_audio_url(current_card["chinese"])
         if audio_bytes:
-            st.audio(audio_bytes, format='audio/mp3')
+            col1, col2, col3 = st.columns([1,2,1])
+            with col2:
+                st.audio(audio_bytes, format='audio/mp3')
         
         # English definition
         st.markdown(f"""
