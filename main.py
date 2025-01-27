@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -250,7 +250,25 @@ def get_audio(text):
         audio_bytes = BytesIO()
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
-        return audio_bytes.read()
+        
+        # Convert to base64 for HTML5 audio
+        audio_b64 = base64.b64encode(audio_bytes.read()).decode()
+        
+        # Create mobile-friendly HTML5 audio element
+        audio_html = f'''
+            <div style="display:flex;justify-content:center;align-items:center;margin:10px auto;">
+                <audio 
+                    controls 
+                    controlsList="nodownload noplaybackrate"
+                    style="width:100px;height:40px;"
+                    playsinline
+                    webkit-playsinline
+                >
+                    <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                </audio>
+            </div>
+        '''
+        return audio_html
     except:
         return None
 
@@ -524,23 +542,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.markdown("""
-                <style>
-                div.stAudio {
-                    display: flex !important;
-                    justify-content: center !important;
-                    margin: 10px auto !important;
-                }
-                div.stAudio > audio {
-                    width: 150px !important;
-                    height: 40px !important;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            st.audio(audio_data, format='audio/mp3')
+        # Audio implementation with mobile support
+        audio_html = get_audio(current_card["chinese"])
+        if audio_html:
+            st.markdown(audio_html, unsafe_allow_html=True)
         
         # Next button inside main container
         st.markdown("""
