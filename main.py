@@ -256,14 +256,12 @@ def get_audio(text):
         return None
 
 def get_audio_url(text):
-    """Get audio URL for each flashcard"""
+    """Get audio URL from Google Drive"""
     try:
         # Map Chinese text to Google Drive audio file IDs
         audio_urls = {
-            "SB": "1MznF9StNasCe9J8rfEECFHbz9M3qkwQM",
-            "摸鱼": "1Ffl-R03MHiLVsGV581xnlFkfIwSJFViB",
-            "牛马": "1cAgsGHTNJIVPk3WgyjUr44np0iRQPRdi",
-            # Add more mappings as needed
+            "摸鱼": "1Ffl-R03MHiLVsGV581xnlFkfIwSJFViB",  # Audio for 摸鱼
+            "牛马": "1cAgsGHTNJIVPk3WgyjUr44np0iRQPRdi",  # Audio for 牛马
         }
         
         if text in audio_urls:
@@ -543,62 +541,14 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Custom Audio Player
+        # Simple audio player with just a play button
         audio_url = get_audio_url(current_card["chinese"])
         if audio_url:
-            st.markdown("""
-                <style>
-                .audio-container {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin: 20px auto;
-                    padding: 10px;
-                    background: #f0f2f6;
-                    border-radius: 10px;
-                    width: 250px;
-                }
-                .audio-player {
-                    width: 100%;
-                    height: 40px;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            st.markdown(f"""
-                <div class="audio-container">
-                    <audio class="audio-player" controls>
-                        <source src="{audio_url}" type="audio/mp3">
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Add play/stop buttons
+            # Center the play button
             col1, col2, col3 = st.columns([1,2,1])
             with col2:
-                st.markdown("""
-                    <script>
-                    function playAudio() {
-                        var audio = document.querySelector('audio');
-                        audio.play();
-                    }
-                    
-                    function stopAudio() {
-                        var audio = document.querySelector('audio');
-                        audio.pause();
-                        audio.currentTime = 0;
-                    }
-                    </script>
-                """, unsafe_allow_html=True)
-                
-                cols = st.columns(2)
-                with cols[0]:
-                    if st.button("▶️ Play"):
-                        st.markdown("<script>playAudio()</script>", unsafe_allow_html=True)
-                with cols[1]:
-                    if st.button("⏹️ Stop"):
-                        st.markdown("<script>stopAudio()</script>", unsafe_allow_html=True)
+                if st.button("🔊 Play", key="play_button"):
+                    st.audio(audio_url, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
