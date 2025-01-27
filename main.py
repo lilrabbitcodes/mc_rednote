@@ -11,10 +11,10 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide Streamlit elements and adjust layout
+# Hide ALL Streamlit elements
 st.markdown("""
     <style>
-        /* Hide all Streamlit elements */
+        /* Hide ALL Streamlit elements */
         footer {display: none !important;}
         #MainMenu {display: none !important;}
         header {display: none !important;}
@@ -24,6 +24,17 @@ st.markdown("""
         button[title="View fullscreen"] {display: none !important;}
         .reportview-container .main footer {display: none !important;}
         iframe[title="streamlit_footer"] {display: none !important;}
+        
+        /* Additional footer hiding */
+        .streamlit-footer {display: none !important;}
+        .streamlit-footer-item {display: none !important;}
+        div[data-testid="stFooter"] {display: none !important;}
+        section[data-testid="stFooter"] {display: none !important;}
+        
+        /* Hide any remaining Streamlit branding */
+        .stApp footer {display: none !important;}
+        .stApp [data-testid="stFooter"] {display: none !important;}
+        .stApp [data-testid="stToolbar"] {display: none !important;}
         
         /* Audio player centering */
         div.stAudio {
