@@ -268,8 +268,8 @@ def get_audio_url(text):
         
         if text in audio_urls:
             file_id = audio_urls[text]
-            # Use direct streaming link format
-            return f"https://docs.google.com/uc?export=open&id={file_id}"
+            # Use direct media link format
+            return f"https://drive.google.com/uc?id={file_id}&export=download"
         return None
     except:
         return None
@@ -548,9 +548,18 @@ def main():
         audio_url = get_audio_url(current_card["chinese"])
         if audio_url:
             st.markdown(f"""
-                <audio controls style="display:block; margin:10px auto; width:250px">
+                <audio 
+                    controls 
+                    preload="auto"
+                    style="display:block; margin:10px auto; width:250px"
+                >
                     <source src="{audio_url}" type="audio/mp3">
+                    Your browser does not support the audio element.
                 </audio>
+                <script>
+                    var audio = document.querySelector('audio');
+                    audio.playbackRate = 1.0;
+                </script>
             """, unsafe_allow_html=True)
         
         # Next button inside main container
