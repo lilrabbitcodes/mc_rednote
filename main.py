@@ -3,6 +3,7 @@ import random
 import os
 import hashlib
 from gtts import gTTS
+import streamlit.components.v1 as components
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
