@@ -4,6 +4,8 @@ import hashlib
 from gtts import gTTS
 from io import BytesIO
 import tempfile
+import base64
+from urllib.parse import quote
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -145,36 +147,12 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """URL-based audio generation"""
     try:
-        # Special cases for pronunciation
-        special_cases = {
-            "HHHH": "哈哈哈哈",
-            "666": "六六六",
-            "88": "八八",
-            "3Q": "三Q",
-            "WC": "哇草",
-            "SB": "傻逼",
-        }
-        
-        # English words to pronounce as-is
-        english_words = ["Vlog", "Flag", "Crush", "Emo"]
-        
-        # Generate audio
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-        elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-        else:
-            text_to_speak = special_cases.get(text, text)
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-            
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        
-        return audio_bytes
+        # Use Google TTS URL directly
+        text_encoded = quote(text)
+        audio_url = f"https://translate.google.com/translate_tts?ie=UTF-8&q={text_encoded}&tl=zh-CN&client=tw-ob"
+        return audio_url
     except:
         return None
 
@@ -448,10 +426,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - simplified implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # URL-based audio
+        audio_url = get_audio(current_card["chinese"])
+        if audio_url:
+            st.markdown(f'<audio controls style="height:30px;width:40px"><source src="{audio_url}"></audio>', unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
