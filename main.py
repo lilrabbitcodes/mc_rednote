@@ -221,36 +221,24 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Generate audio URL for mobile compatibility"""
     try:
-        # Special cases for pronunciation
-        special_cases = {
-            "HHHH": "哈哈哈哈",
-            "666": "六六六",
-            "88": "八八",
-            "3Q": "三Q",
-            "WC": "哇草",
-            "SB": "傻逼",
-            "6": "六",
-            "city不city": "city 不 city"
+        # Map Chinese text to pre-generated audio file URLs
+        audio_urls = {
+            "牛马": "https://raw.githubusercontent.com/your-username/repo-name/main/audio/niuma.mp3",
+            "摸鱼": "https://raw.githubusercontent.com/your-username/repo-name/main/audio/moyu.mp3",
+            # Add more mappings for each term
         }
         
-        # English words to pronounce as-is
-        english_words = ["Vlog", "Flag", "Crush", "Emo"]
-        
-        # Generate audio
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-        elif text in special_cases:
-            tts = gTTS(text=special_cases[text], lang='zh-cn', slow=False)
+        if text in audio_urls:
+            return audio_urls[text]
         else:
+            # Generate audio on the fly as fallback
             tts = gTTS(text=text, lang='zh-cn', slow=False)
-            
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        return audio_bytes.read()
+            audio_bytes = BytesIO()
+            tts.write_to_fp(audio_bytes)
+            audio_bytes.seek(0)
+            return audio_bytes.read()
     except:
         return None
 
@@ -525,9 +513,16 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        audio_source = get_audio(current_card["chinese"])
+        if audio_source:
+            if isinstance(audio_source, str):  # If it's a URL
+                st.markdown(f"""
+                    <audio controls style="width:150px;margin:0 auto;display:block">
+                        <source src="{audio_source}" type="audio/mp3">
+                    </audio>
+                """, unsafe_allow_html=True)
+            else:  # If it's bytes data
+                st.audio(audio_source, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
