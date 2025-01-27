@@ -55,8 +55,19 @@ st.markdown("""
     color: black !important;
 }
 
-.stButton {
-    text-align: center;
+/* Button styling */
+.stButton > button {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+    border-radius: 5px !important;
+    padding: 5px 15px !important;
+    font-weight: 500 !important;
+}
+
+.stButton > button:hover {
+    background-color: #f0f0f0 !important;
+    border-color: black !important;
 }
 
 /* Audio player styling */
@@ -68,17 +79,23 @@ st.markdown("""
 }
 
 .stAudio > audio {
-    width: 200px !important;
-    height: 40px !important;
+    width: 150px !important;
+    height: 30px !important;
 }
 
 audio::-webkit-media-controls-panel {
-    background-color: #f0f2f6 !important;
+    background-color: #e0e0e0 !important;
 }
 
 audio::-webkit-media-controls-play-button {
-    transform: scale(1.5) !important;
-    margin: 0 10px !important;
+    transform: scale(1.2) !important;
+    margin: 0 8px !important;
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+    color: #666 !important;
+    font-size: 12px !important;
 }
 </style>
 """, unsafe_allow_html=True)
