@@ -147,9 +147,6 @@ def generate_audio(text):
         return None
         
     try:
-        # Use temporary directory instead of creating our own
-        import tempfile
-        
         # Special cases mapping
         special_cases = {
             "HHHH": "哈哈哈哈",
@@ -163,31 +160,24 @@ def generate_audio(text):
         # Words to pronounce in English
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Create temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
-            audio_path = fp.name
-            
-            # Check if it's an English word
-            if text in english_words:
-                tts = gTTS(text=text, lang='en', slow=False)
-                tts.save(audio_path)
-                return audio_path
-                
-            # Special case for "city不city"
-            if text == "city不city":
-                text_to_speak = "city 不 city"
-                tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-                tts.save(audio_path)
-                return audio_path
-            
-            # For other cases, use the original Chinese pronunciation
+        # Generate audio directly in memory
+        if text in english_words:
+            tts = gTTS(text=text, lang='en', slow=False)
+        elif text == "city不city":
+            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+        else:
             text_to_speak = special_cases.get(text, text)
             characters = list(text_to_speak)
             spaced_text = ' '.join(characters)
             tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
-            tts.save(audio_path)
-            
-            return audio_path
+
+        # Use BytesIO instead of file
+        from io import BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        
+        return audio_bytes
             
     except Exception as e:
         st.error(f"Error generating audio: {str(e)}")
@@ -496,9 +486,9 @@ def main():
         
         # Audio
         if AUDIO_ENABLED:
-            audio_path = generate_audio(current_card["chinese"])
-            if audio_path and os.path.exists(audio_path):
-                st.audio(audio_path, format='audio/mp3')
+            audio_data = generate_audio(current_card["chinese"])
+            if audio_data:
+                st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
