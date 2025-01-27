@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation optimized for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -249,7 +249,24 @@ def get_audio(text):
         audio_bytes = BytesIO()
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
-        return audio_bytes.read()
+        
+        # Convert to base64 for HTML5 audio
+        audio_b64 = base64.b64encode(audio_bytes.read()).decode()
+        
+        # Create mobile-friendly HTML5 audio element
+        audio_html = f'''
+            <div style="display:flex;justify-content:center;margin:10px auto;">
+                <audio 
+                    controls 
+                    style="width:40px;height:40px;border-radius:50%;background:#666666;"
+                    playsinline
+                    webkit-playsinline
+                >
+                    <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                </audio>
+            </div>
+        '''
+        return audio_html
     except:
         return None
 
@@ -523,41 +540,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            # Center the audio player with CSS
-            st.markdown("""
-                <style>
-                div.stAudio {
-                    display: flex !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    margin: 10px auto !important;
-                }
-                div.stAudio > audio {
-                    width: 35px !important;
-                    height: 35px !important;
-                    border-radius: 50% !important;
-                    background-color: #666666 !important;
-                }
-                audio::-webkit-media-controls-panel {
-                    background-color: #666666 !important;
-                }
-                audio::-webkit-media-controls-play-button {
-                    transform: scale(1.2) !important;
-                    margin: 0 !important;
-                }
-                audio::-webkit-media-controls-timeline,
-                audio::-webkit-media-controls-current-time-display,
-                audio::-webkit-media-controls-time-remaining-display,
-                audio::-webkit-media-controls-volume-slider,
-                audio::-webkit-media-controls-mute-button {
-                    display: none !important;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            st.audio(audio_data, format='audio/mp3')
+        # Audio implementation with mobile support
+        audio_html = get_audio(current_card["chinese"])
+        if audio_html:
+            st.markdown(audio_html, unsafe_allow_html=True)
         
         # Next button inside main container
         st.markdown("""
