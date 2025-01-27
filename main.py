@@ -244,12 +244,17 @@ def get_audio(text):
         else:
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
+
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+            tts.save(fp.name)
+            # Read the file
+            with open(fp.name, 'rb') as audio_file:
+                audio_data = audio_file.read()
+            # Clean up
+            os.unlink(fp.name)
+            return audio_data
             
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        return audio_bytes.read()
     except:
         return None
 
@@ -523,24 +528,13 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Simple audio implementation
+        # Audio implementation with mobile optimization
         try:
             audio_data = get_audio(current_card["chinese"])
             if audio_data:
-                # Add CSS for audio player
-                st.markdown("""
-                    <style>
-                    div.stAudio {
-                        display: flex !important;
-                        justify-content: center !important;
-                    }
-                    div.stAudio > audio {
-                        width: 40px !important;
-                        height: 40px !important;
-                    }
-                    </style>
-                """, unsafe_allow_html=True)
-                st.audio(audio_data, format='audio/mp3')
+                col1, col2, col3 = st.columns([1,2,1])
+                with col2:
+                    st.audio(audio_data, format='audio/mp3')
         except:
             pass
         
