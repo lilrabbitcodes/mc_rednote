@@ -253,7 +253,7 @@ def get_audio(text, card_index):
         audio_bytes = BytesIO()
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
-        return audio_bytes.read()  # Return bytes instead of BytesIO object
+        return audio_bytes.read()
         
     except Exception as e:
         st.error(f"Audio error: {str(e)}")
@@ -564,9 +564,7 @@ def main():
         try:
             audio_data = get_audio(current_card["chinese"], st.session_state.index)
             if audio_data:
-                # Create a unique key for each audio component
-                unique_key = f"audio_{st.session_state.index}_{current_card['chinese']}"
-                st.audio(audio_data, format='audio/mp3', key=unique_key)
+                st.audio(audio_data, format='audio/mp3')
         except Exception as e:
             st.error(f"Failed to play audio: {str(e)}")
         
