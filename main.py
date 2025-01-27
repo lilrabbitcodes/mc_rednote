@@ -4,6 +4,7 @@ import hashlib
 from gtts import gTTS
 from io import BytesIO
 import base64
+import time
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -255,13 +256,23 @@ def get_audio(text, card_index):
         # Convert to base64
         audio_b64 = base64.b64encode(audio_bytes).decode()
         
-        # Create HTML5 audio element with unique ID
+        # Create HTML5 audio element with unique ID and timestamp
+        timestamp = int(time.time() * 1000)  # Add timestamp for cache busting
         audio_html = f'''
-            <div class="audio-container">
-                <audio controls style="height:35px;width:35px" id="audio_{card_index}">
+            <div class="audio-container" id="container_{card_index}_{timestamp}">
+                <audio controls style="height:35px;width:35px" id="audio_{card_index}_{timestamp}">
                     <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
                 </audio>
             </div>
+            <script>
+                // Force reload of audio element
+                document.addEventListener('DOMContentLoaded', function() {{
+                    var audio = document.getElementById('audio_{card_index}_{timestamp}');
+                    if (audio) {{
+                        audio.load();
+                    }}
+                }});
+            </script>
         '''
         return audio_html
     except:
@@ -568,10 +579,16 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio with HTML5 player
-        audio_html = get_audio(current_card["chinese"], st.session_state.index)
-        if audio_html:
-            st.markdown(audio_html, unsafe_allow_html=True)
+        # Audio with HTML5 player and force refresh
+        if 'last_index' not in st.session_state:
+            st.session_state.last_index = -1
+            
+        # Only regenerate audio if card changed
+        if st.session_state.last_index != st.session_state.index:
+            audio_html = get_audio(current_card["chinese"], st.session_state.index)
+            st.session_state.last_index = st.session_state.index
+            if audio_html:
+                st.markdown(audio_html, unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
