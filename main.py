@@ -146,54 +146,17 @@ audio::-webkit-media-controls-time-remaining-display {
 </style>
 """, unsafe_allow_html=True)
 
-def get_audio(text):
-    """Simple audio generation with HTML5 audio"""
+def get_audio_url(text):
+    """Get pre-recorded audio URL"""
     try:
-        # Special cases for pronunciation
-        special_cases = {
-            "HHHH": "哈哈哈哈",
-            "666": "六六六",
-            "88": "八八",
-            "3Q": "三Q",
-            "WC": "哇草",
-            "SB": "傻逼",
+        # Map text to Azure/AWS hosted audio files
+        audio_map = {
+            "牛马": "https://d1p7uxj2nxupcn.cloudfront.net/niuma.mp3",
+            "摸鱼": "https://d1p7uxj2nxupcn.cloudfront.net/moyu.mp3",
+            # ... add more mappings
         }
-        
-        # English words to pronounce as-is
-        english_words = ["Vlog", "Flag", "Crush", "Emo"]
-        
-        # Generate audio
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-        elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-        else:
-            text_to_speak = special_cases.get(text, text)
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-            
-        # Save to BytesIO and convert to base64
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        
-        # Use st.audio with custom styling
-        st.markdown("""
-        <style>
-        .stAudio {
-            display: flex;
-            justify-content: center;
-        }
-        .stAudio > audio {
-            width: 40px;
-            height: 30px;
-            background-color: #666666;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        return audio_bytes
-    except Exception as e:
-        st.error(f"Audio error: {str(e)}")
+        return audio_map.get(text)
+    except:
         return None
 
 # Flashcard data
@@ -466,10 +429,14 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # Audio using direct URL
+        audio_url = get_audio_url(current_card["chinese"])
+        if audio_url:
+            st.markdown(f"""
+                <audio controls style="height:30px;width:40px">
+                    <source src="{audio_url}" type="audio/mp3">
+                </audio>
+            """, unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
