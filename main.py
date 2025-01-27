@@ -79,7 +79,7 @@ st.markdown("""
 }
 
 .stAudio > audio {
-    width: 150px !important;
+    width: 90px !important;
     height: 30px !important;
 }
 
