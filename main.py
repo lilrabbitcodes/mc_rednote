@@ -23,16 +23,10 @@ st.markdown("""
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
         
-        /* Static container */
+        /* Container */
         .main .block-container {
-            padding: 1rem 1rem 0rem 1rem !important;
-            max-height: 100vh !important;
-            overflow: hidden !important;
-        }
-        
-        .stApp {
-            height: 100vh !important;
-            overflow: hidden !important;
+            padding: 1rem !important;
+            max-width: 100% !important;
         }
         
         /* Main container */
@@ -40,17 +34,17 @@ st.markdown("""
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 8px !important;
-            padding: 0 10px !important;
-            height: calc(100vh - 2rem) !important;
+            gap: 10px !important;
+            padding: 10px !important;
         }
         
         /* Image sizing */
         .element-container img {
-            max-height: 40vh !important;
+            max-height: 35vh !important;
             width: auto !important;
             object-fit: contain !important;
             margin: 0 auto !important;
+            border-radius: 10px !important;
         }
         
         /* Text content */
@@ -71,7 +65,7 @@ st.markdown("""
         .explanation {
             font-size: 18px !important;
             font-weight: 500 !important;
-            margin: 5px 0 15px 0 !important;
+            margin: 5px 0 10px 0 !important;
             text-align: center !important;
             padding: 0 15px !important;
         }
@@ -92,21 +86,11 @@ st.markdown("""
         .stButton {
             display: flex !important;
             justify-content: center !important;
-            margin-top: auto !important;
-            padding-bottom: 20px !important;
+            margin: 10px auto !important;
         }
         
         .stButton button {
             width: 120px !important;
-        }
-        
-        /* Hide scrollbars */
-        ::-webkit-scrollbar {
-            display: none !important;
-        }
-        * {
-            -ms-overflow-style: none !important;
-            scrollbar-width: none !important;
         }
     </style>
 """, unsafe_allow_html=True)
