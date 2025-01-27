@@ -244,8 +244,8 @@ def get_audio(text, card_index):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
 
-        # Save to temporary file with unique name for each card
-        temp_file = f"temp_{card_index}_{hash(text)}.mp3"
+        # Save to temporary file with unique name
+        temp_file = f"temp_{card_index}_{int(time.time())}.mp3"
         tts.save(temp_file)
         
         # Read file and convert to base64
@@ -256,25 +256,7 @@ def get_audio(text, card_index):
         # Convert to base64
         audio_b64 = base64.b64encode(audio_bytes).decode()
         
-        # Create HTML5 audio element with unique ID and timestamp
-        timestamp = int(time.time() * 1000)  # Add timestamp for cache busting
-        audio_html = f'''
-            <div class="audio-container" id="container_{card_index}_{timestamp}">
-                <audio controls style="height:35px;width:35px" id="audio_{card_index}_{timestamp}">
-                    <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
-                </audio>
-            </div>
-            <script>
-                // Force reload of audio element
-                document.addEventListener('DOMContentLoaded', function() {{
-                    var audio = document.getElementById('audio_{card_index}_{timestamp}');
-                    if (audio) {{
-                        audio.load();
-                    }}
-                }});
-            </script>
-        '''
-        return audio_html
+        return audio_b64
     except:
         return None
 
@@ -579,16 +561,32 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio with HTML5 player and force refresh
-        if 'last_index' not in st.session_state:
-            st.session_state.last_index = -1
-            
-        # Only regenerate audio if card changed
-        if st.session_state.last_index != st.session_state.index:
-            audio_html = get_audio(current_card["chinese"], st.session_state.index)
-            st.session_state.last_index = st.session_state.index
-            if audio_html:
-                st.markdown(audio_html, unsafe_allow_html=True)
+        # Generate audio data first
+        audio_b64 = get_audio(current_card["chinese"], st.session_state.index)
+        
+        # Audio player with dynamic update
+        if audio_b64:
+            st.markdown(f"""
+                <style>
+                .audio-container {{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 15px auto;
+                }}
+                .audio-player {{
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                    background-color: #666666;
+                }}
+                </style>
+                <div class="audio-container">
+                    <audio class="audio-player" controls key="audio_{st.session_state.index}_{int(time.time())}">
+                        <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                    </audio>
+                </div>
+            """, unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
