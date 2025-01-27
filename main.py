@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation optimized for mobile"""
+    """Simple audio generation for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -246,18 +246,12 @@ def get_audio(text):
         else:
             tts = gTTS(text=text, lang='zh-cn', slow=False)
             
-        # Create temporary file
-        temp_file = f"temp_{hash(text)}.mp3"
-        tts.save(temp_file)
-        
-        # Read file
-        with open(temp_file, 'rb') as f:
-            audio_data = f.read()
-            
-        # Clean up
-        os.remove(temp_file)
-        
-        return audio_data
+        # Save directly to bytes
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        return audio_bytes
+
     except:
         return None
 
@@ -531,11 +525,11 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation with mobile optimization
+        # Audio implementation with mobile support
         try:
-            audio_data = get_audio(current_card["chinese"])
-            if audio_data:
-                # Simple audio styling
+            audio_bytes = get_audio(current_card["chinese"])
+            if audio_bytes:
+                # Simple styling
                 st.markdown("""
                     <style>
                     div.stAudio {
@@ -544,14 +538,13 @@ def main():
                         margin: 10px auto !important;
                     }
                     div.stAudio > audio {
-                        width: 100px !important;
-                        height: 40px !important;
+                        width: 150px !important;
                     }
                     </style>
                 """, unsafe_allow_html=True)
                 
-                # Use a simple audio player
-                st.audio(audio_data, format='audio/mp3')
+                # Use streamlit's audio player
+                st.audio(audio_bytes, format='audio/mp3')
         except:
             pass
         
