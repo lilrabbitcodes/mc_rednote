@@ -147,49 +147,48 @@ def generate_audio(text):
         return None
         
     try:
-        os.makedirs("audio_cache", exist_ok=True)
+        # Use temporary directory instead of creating our own
+        import tempfile
         
         # Special cases mapping
         special_cases = {
-            "HHHH": "哈哈哈哈",  # Convert HHHH to actual Chinese characters
-            "666": "六六六",      # Ensure 666 is pronounced as individual numbers
-            "88": "八八",         # Ensure 88 is pronounced as individual numbers
-            "3Q": "三Q",          # Special case for 3Q
-            "WC": "哇草",         # Convert WC to actual pronunciation
-            "SB": "傻逼",         # Convert SB to actual characters
+            "HHHH": "哈哈哈哈",
+            "666": "六六六",
+            "88": "八八",
+            "3Q": "三Q",
+            "WC": "哇草",
+            "SB": "傻逼",
         }
         
         # Words to pronounce in English
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Check if it's an English word
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-            audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
-            if not os.path.exists(audio_path):
-                tts.save(audio_path)
-            return audio_path
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+            audio_path = fp.name
             
-        # Special case for "city不city"
-        if text == "city不city":
-            text_to_speak = "city 不 city"  # Space separated for clearer pronunciation
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-            audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
-            if not os.path.exists(audio_path):
+            # Check if it's an English word
+            if text in english_words:
+                tts = gTTS(text=text, lang='en', slow=False)
                 tts.save(audio_path)
-            return audio_path
-        
-        # For other cases, use the original Chinese pronunciation
-        text_to_speak = special_cases.get(text, text)
-        characters = list(text_to_speak)
-        audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
-        
-        if not os.path.exists(audio_path):
+                return audio_path
+                
+            # Special case for "city不city"
+            if text == "city不city":
+                text_to_speak = "city 不 city"
+                tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
+                tts.save(audio_path)
+                return audio_path
+            
+            # For other cases, use the original Chinese pronunciation
+            text_to_speak = special_cases.get(text, text)
+            characters = list(text_to_speak)
             spaced_text = ' '.join(characters)
             tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
             tts.save(audio_path)
-        
-        return audio_path
+            
+            return audio_path
+            
     except Exception as e:
         st.error(f"Error generating audio: {str(e)}")
         return None
