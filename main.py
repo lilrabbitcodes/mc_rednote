@@ -268,8 +268,11 @@ def get_audio_url(text):
         
         if text in audio_urls:
             file_id = audio_urls[text]
-            # Use alternative direct download link format
-            return f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media&key=YOUR_API_KEY"
+            # Get the audio data directly
+            url = f"https://drive.google.com/uc?export=view&id={file_id}"
+            response = requests.get(url)
+            if response.status_code == 200:
+                return response.content
         return None
     except:
         return None
@@ -545,13 +548,12 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation
-        audio_url = get_audio_url(current_card["chinese"])
-        if audio_url:
-            st.markdown(f"""
-                <audio controls style="display:block; margin:10px auto; width:250px">
-                    <source src="{audio_url}" type="audio/mp3">
-                </audio>
-            """, unsafe_allow_html=True)
+        audio_data = get_audio_url(current_card["chinese"])
+        if audio_data:
+            # Center the audio player
+            col1, col2, col3 = st.columns([1,2,1])
+            with col2:
+                st.audio(audio_data, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
