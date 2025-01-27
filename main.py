@@ -255,66 +255,6 @@ def get_audio(text):
     except:
         return None
 
-def get_audio_url(text):
-    """Get audio URL from Google Translate (free)"""
-    try:
-        # Special cases for pronunciation
-        special_cases = {
-            "HHHH": "哈哈哈哈",
-            "666": "六六六",
-            "88": "八八",
-            "3Q": "三Q",
-            "WC": "哇草",
-            "SB": "傻逼",
-            "6": "六",
-            "city不city": "city 不 city"
-        }
-        
-        # English words
-        english_words = ["Vlog", "Flag", "Crush", "Emo"]
-        
-        # Determine text and language
-        if text in english_words:
-            lang = 'en'
-            text_to_speak = text
-        elif text in special_cases:
-            lang = 'zh-CN'
-            text_to_speak = special_cases[text]
-        else:
-            lang = 'zh-CN'
-            text_to_speak = text
-
-        # Add required headers
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-            
-        # Create URL parameters
-        params = {
-            'ie': 'UTF-8',
-            'q': text_to_speak,
-            'tl': lang,
-            'total': '1',
-            'idx': '0',
-            'textlen': str(len(text_to_speak)),
-            'client': 'tw-ob',
-            'prev': 'input',
-            'ttsspeed': '1'
-        }
-        
-        # Construct the URL
-        base_url = "https://translate.google.com/translate_tts"
-        response = requests.get(base_url, params=params, headers=headers)
-        
-        if response.status_code == 200:
-            # Save audio to BytesIO
-            audio_bytes = BytesIO(response.content)
-            return audio_bytes.read()
-            
-        return None
-    except:
-        return None
-
 # Flashcard data
 flashcards = [
     {
