@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation for mobile"""
+    """Simple audio generation"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -524,28 +524,23 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Simple audio implementation
-        try:
-            audio_data = get_audio(current_card["chinese"])
-            if audio_data:
-                # Center the audio player
-                col1, col2, col3 = st.columns([1,2,1])
-                with col2:
-                    st.markdown("""
-                        <style>
-                        div.stAudio {
-                            display: flex !important;
-                            justify-content: center !important;
-                        }
-                        div.stAudio > audio {
-                            width: 100px !important;
-                            height: 40px !important;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
-                    st.audio(audio_data, format='audio/mp3')
-        except:
-            pass
+        # Audio implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.markdown("""
+                <style>
+                div.stAudio {
+                    display: flex !important;
+                    justify-content: center !important;
+                    margin: 10px auto !important;
+                }
+                div.stAudio > audio {
+                    width: 150px !important;
+                    height: 40px !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
