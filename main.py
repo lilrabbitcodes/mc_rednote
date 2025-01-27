@@ -157,22 +157,34 @@ def generate_audio(text):
             "3Q": "三Q",          # Special case for 3Q
             "WC": "哇草",         # Convert WC to actual pronunciation
             "SB": "傻逼",         # Convert SB to actual characters
-            "Vlog": "视频博客",    # Full word pronunciation
-            "Flag": "立flag",     # Full word pronunciation
-            "Crush": "暗恋",      # Full word pronunciation
-            "city不city": "城市不城市",  # Full word pronunciation
-            "Emo": "伤心",        # Full word pronunciation
         }
         
-        # Check if text is a special case
-        text_to_speak = special_cases.get(text, text)
+        # Words to pronounce in English
+        english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Split text into individual characters
+        # Check if it's an English word
+        if text in english_words:
+            tts = gTTS(text=text, lang='en', slow=False)
+            audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
+            if not os.path.exists(audio_path):
+                tts.save(audio_path)
+            return audio_path
+            
+        # Special case for "city不city"
+        if text == "city不city":
+            text_to_speak = "city 不 city"  # Space separated for clearer pronunciation
+            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
+            audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
+            if not os.path.exists(audio_path):
+                tts.save(audio_path)
+            return audio_path
+        
+        # For other cases, use the original Chinese pronunciation
+        text_to_speak = special_cases.get(text, text)
         characters = list(text_to_speak)
         audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
         
         if not os.path.exists(audio_path):
-            # Join characters with spaces for clearer pronunciation
             spaced_text = ' '.join(characters)
             tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
             tts.save(audio_path)
