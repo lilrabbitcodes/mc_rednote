@@ -169,7 +169,12 @@ def get_audio(text):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-        return tts
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        
+        return audio_bytes
     except:
         return None
 
@@ -443,13 +448,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
-        tts = get_audio(current_card["chinese"])
-        if tts:
-            try:
-                st.audio(tts.get_urls()[0])  # Get the direct URL from gTTS
-            except:
-                pass  # Silently fail if audio doesn't work
+        # Audio - simplified implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
