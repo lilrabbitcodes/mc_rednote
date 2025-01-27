@@ -36,6 +36,21 @@ st.markdown("""
         .stApp [data-testid="stFooter"] {display: none !important;}
         .stApp [data-testid="stToolbar"] {display: none !important;}
         
+        /* Force hide footer on mobile */
+        @media (max-width: 768px) {
+            footer {height: 0px !important; min-height: 0px !important; display: none !important;}
+            .stApp [data-testid="stFooter"] {height: 0px !important; min-height: 0px !important; display: none !important;}
+            .stApp [data-testid="stToolbar"] {height: 0px !important; min-height: 0px !important; display: none !important;}
+            iframe[title="streamlit_footer"] {height: 0px !important; min-height: 0px !important; display: none !important;}
+            section[data-testid="stFooter"] {height: 0px !important; min-height: 0px !important; display: none !important;}
+        }
+        
+        /* Prevent any space for footer */
+        .main .block-container {
+            padding-bottom: 0px !important;
+            margin-bottom: 0px !important;
+        }
+        
         /* Audio player centering */
         div.stAudio {
             display: flex !important;
