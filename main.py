@@ -3,6 +3,9 @@ import streamlit as st
 # Basic page config
 st.set_page_config(page_title="Chinese Meme Flashcards")
 
+# Debug message
+st.write("App is loading...")
+
 # Test data
 flashcard = {
     "chinese": "牛马",
