@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -524,10 +524,11 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
+        # Audio implementation with mobile support
         try:
             audio_data = get_audio(current_card["chinese"])
             if audio_data:
+                # Simpler audio styling for mobile
                 st.markdown("""
                     <style>
                     div.stAudio {
@@ -536,28 +537,16 @@ def main():
                         margin: 10px auto !important;
                     }
                     div.stAudio > audio {
-                        width: 40px !important;
-                        height: 40px !important;
-                        border-radius: 50% !important;
-                        background-color: #666666 !important;
-                    }
-                    audio::-webkit-media-controls-panel {
-                        background-color: #666666 !important;
-                    }
-                    audio::-webkit-media-controls-play-button {
-                        transform: scale(1.2) !important;
-                        margin: 0 !important;
-                    }
-                    audio::-webkit-media-controls-timeline,
-                    audio::-webkit-media-controls-current-time-display,
-                    audio::-webkit-media-controls-time-remaining-display,
-                    audio::-webkit-media-controls-volume-slider,
-                    audio::-webkit-media-controls-mute-button {
-                        display: none !important;
+                        min-width: 50px !important;
+                        height: 50px !important;
                     }
                     </style>
                 """, unsafe_allow_html=True)
-                st.audio(audio_data, format='audio/mp3')
+                
+                # Use columns for better mobile layout
+                col1, col2, col3 = st.columns([1,2,1])
+                with col2:
+                    st.audio(audio_data, format='audio/mp3')
         except:
             pass
         
