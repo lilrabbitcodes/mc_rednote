@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import hashlib
+from gtts import gTTS
+from io import BytesIO
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -141,13 +143,10 @@ audio::-webkit-media-controls-time-remaining-display {
 </style>
 """, unsafe_allow_html=True)
 
-def generate_audio(text):
-    """Generate audio for the given text in Mandarin character by character"""
-    if not AUDIO_ENABLED:
-        return None
-        
+def get_audio(text):
+    """Simple audio generation"""
     try:
-        # Special cases mapping
+        # Special cases for pronunciation
         special_cases = {
             "HHHH": "哈哈哈哈",
             "666": "六六六",
@@ -157,35 +156,25 @@ def generate_audio(text):
             "SB": "傻逼",
         }
         
-        # Words to pronounce in English
+        # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        try:
-            # Check if it's an English word
-            if text in english_words:
-                tts = gTTS(text=text, lang='en', slow=False)
-            elif text == "city不city":
-                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-            else:
-                text_to_speak = special_cases.get(text, text)
-                characters = list(text_to_speak)
-                spaced_text = ' '.join(characters)
-                tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
-
-            # Generate audio in memory
-            from io import BytesIO
-            audio_bytes = BytesIO()
-            tts.write_to_fp(audio_bytes)
-            audio_bytes.seek(0)
+        # Generate audio
+        if text in english_words:
+            tts = gTTS(text=text, lang='en', slow=False)
+        elif text == "city不city":
+            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+        else:
+            text_to_speak = special_cases.get(text, text)
+            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-            return audio_bytes
-            
-        except Exception as e:
-            st.warning(f"Could not generate audio for: {text}")
-            return None
-            
-    except Exception as e:
-        st.warning("Audio temporarily unavailable")
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        
+        return audio_bytes
+    except:
         return None
 
 # Flashcard data
@@ -489,14 +478,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio with better error handling
-        if AUDIO_ENABLED:
-            try:
-                audio_data = generate_audio(current_card["chinese"])
-                if audio_data:
-                    st.audio(audio_data, format='audio/mp3')
-            except:
-                st.warning("Audio player unavailable")
+        # Audio - simplified implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
