@@ -258,9 +258,6 @@ def get_audio(text):
 def get_audio_url(text):
     """Get audio URL from Google Translate (free)"""
     try:
-        # Base URL for Google Translate TTS
-        base_url = "https://translate.google.com/translate_tts"
-        
         # Special cases for pronunciation
         special_cases = {
             "HHHH": "哈哈哈哈",
@@ -281,26 +278,40 @@ def get_audio_url(text):
             lang = 'en'
             text_to_speak = text
         elif text in special_cases:
-            lang = 'zh'
+            lang = 'zh-CN'
             text_to_speak = special_cases[text]
         else:
-            lang = 'zh'
+            lang = 'zh-CN'
             text_to_speak = text
+
+        # Add required headers
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
             
         # Create URL parameters
         params = {
             'ie': 'UTF-8',
             'q': text_to_speak,
             'tl': lang,
+            'total': '1',
+            'idx': '0',
+            'textlen': str(len(text_to_speak)),
             'client': 'tw-ob',
-            'ttsspeed': 1
+            'prev': 'input',
+            'ttsspeed': '1'
         }
         
         # Construct the URL
-        param_string = '&'.join(f'{k}={requests.utils.quote(str(v))}' for k, v in params.items())
-        audio_url = f"{base_url}?{param_string}"
+        base_url = "https://translate.google.com/translate_tts"
+        response = requests.get(base_url, params=params, headers=headers)
         
-        return audio_url
+        if response.status_code == 200:
+            # Save audio to BytesIO
+            audio_bytes = BytesIO(response.content)
+            return audio_bytes.read()
+            
+        return None
     except:
         return None
 
@@ -575,13 +586,9 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation
-        audio_url = get_audio_url(current_card["chinese"])
-        if audio_url:
-            st.markdown(f"""
-                <audio controls style="display:block; margin:10px auto; width:200px">
-                    <source src="{audio_url}" type="audio/mp3">
-                </audio>
-            """, unsafe_allow_html=True)
+        audio_data = get_audio_url(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
