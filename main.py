@@ -56,6 +56,12 @@ st.markdown("""
 }
 
 /* Button styling */
+.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
 .stButton > button {
     background-color: white !important;
     color: black !important;
@@ -63,6 +69,7 @@ st.markdown("""
     border-radius: 5px !important;
     padding: 5px 15px !important;
     font-weight: 500 !important;
+    margin: 0 auto !important;
 }
 
 .stButton > button:hover {
@@ -94,8 +101,14 @@ audio::-webkit-media-controls-play-button {
 
 audio::-webkit-media-controls-current-time-display,
 audio::-webkit-media-controls-time-remaining-display {
-    color: #666 !important;
+    color: white !important;
     font-size: 12px !important;
+}
+
+/* Center column content */
+[data-testid="column"] {
+    display: flex !important;
+    justify-content: center !important;
 }
 </style>
 """, unsafe_allow_html=True)
