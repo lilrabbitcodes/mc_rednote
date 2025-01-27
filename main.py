@@ -100,6 +100,21 @@ st.markdown("""
         .stButton button {
             width: 120px !important;
         }
+        
+        /* Image centering */
+        [data-testid="stImage"] {
+            display: flex !important;
+            justify-content: center !important;
+        }
+        
+        [data-testid="stImage"] > img {
+            max-height: 35vh !important;
+            width: auto !important;
+            max-width: 90% !important;
+            object-fit: contain !important;
+            border-radius: 10px !important;
+            margin: 0 auto !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -619,8 +634,10 @@ def main():
             <div class="main-container">
         """, unsafe_allow_html=True)
         
-        # Image
-        st.image(current_card['meme_url'], use_column_width=True)
+        # Image with centering
+        col1, col2, col3 = st.columns([1,6,1])
+        with col2:
+            st.image(current_card['meme_url'], use_column_width=False)
         
         # Chinese character
         st.markdown(f"""
