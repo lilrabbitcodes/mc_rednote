@@ -147,11 +147,36 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio_url(text):
-    """Get pre-recorded audio URL"""
+    """Get audio URL with special cases"""
     try:
-        # Map text to audio URLs (using Google Translate TTS as a temporary solution)
-        text_encoded = quote(text)
-        return f"https://translate.google.com/translate_tts?ie=UTF-8&q={text_encoded}&tl=zh-CN&client=tw-ob"
+        # Special cases for pronunciation
+        special_cases = {
+            "HHHH": "哈哈哈哈",
+            "666": "六六六",
+            "88": "八八",
+            "3Q": "三Q",
+            "WC": "哇草",
+            "SB": "傻逼",
+        }
+        
+        # English words to pronounce as-is
+        english_words = ["Vlog", "Flag", "Crush", "Emo"]
+        
+        # Determine text to speak
+        if text in english_words:
+            text_to_speak = text
+            lang = 'en'
+        elif text == "city不city":
+            text_to_speak = "city 不 city"
+            lang = 'zh-CN'
+        else:
+            text_to_speak = special_cases.get(text, text)
+            lang = 'zh-CN'
+            
+        # Use Microsoft Edge TTS service (more reliable than Google)
+        text_encoded = quote(text_to_speak)
+        return f"https://api.edge-tts.com/tts?text={text_encoded}&lang={lang}"
+        
     except:
         return None
 
@@ -425,12 +450,12 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio using custom play button
+        # Audio using custom play button with preload
         audio_url = get_audio_url(current_card["chinese"])
         if audio_url:
-            st.markdown("""
+            st.markdown(f"""
                 <style>
-                .audio-button {
+                .audio-button {{
                     width: 40px;
                     height: 40px;
                     background-color: #666666;
@@ -441,27 +466,44 @@ def main():
                     cursor: pointer;
                     margin: 10px auto;
                     border: none;
-                }
-                .audio-button:hover {
+                    transition: background-color 0.3s;
+                }}
+                .audio-button:hover {{
                     background-color: #777777;
-                }
-                .play-icon {
+                }}
+                .play-icon {{
                     width: 0;
                     height: 0;
                     border-style: solid;
                     border-width: 10px 0 10px 16px;
                     border-color: transparent transparent transparent white;
                     margin-left: 4px;
-                }
+                }}
                 </style>
                 <div style="display:flex;justify-content:center;margin:10px 0;">
-                    <button class="audio-button" onclick="playAudio('{audio_url}')">
+                    <button class="audio-button" onclick="playAudioWithFeedback('{audio_url}', this)">
                         <div class="play-icon"></div>
                     </button>
                 </div>
                 <script>
-                function playAudio(url) {{
-                    new Audio(url).play();
+                let audio = new Audio();
+                
+                function playAudioWithFeedback(url, button) {{
+                    button.style.backgroundColor = '#888888';  // Visual feedback
+                    
+                    audio.src = url;
+                    audio.play()
+                    .then(() => {{
+                        // Success
+                        setTimeout(() => {{
+                            button.style.backgroundColor = '#666666';
+                        }}, 500);
+                    }})
+                    .catch((error) => {{
+                        // Error handling
+                        button.style.backgroundColor = '#666666';
+                        console.error('Audio playback failed:', error);
+                    }});
                 }}
                 </script>
             """, unsafe_allow_html=True)
