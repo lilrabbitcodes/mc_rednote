@@ -11,24 +11,23 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide Streamlit elements and make page static
+# Hide Streamlit elements and adjust layout
 st.markdown("""
     <style>
         /* Hide Streamlit elements */
-        footer {visibility: hidden !important;}
-        #MainMenu {visibility: hidden !important;}
-        header {visibility: hidden !important;}
+        footer {display: none !important;}
+        #MainMenu {display: none !important;}
+        header {display: none !important;}
         .stDeployButton {display: none !important;}
         .viewerBadge_container__1QSob {display: none !important;}
         .viewerBadge_link__1QSob {display: none !important;}
-        button[title="View fullscreen"] {visibility: hidden !important;}
+        button[title="View fullscreen"] {display: none !important;}
         
-        /* Make page static */
+        /* Static container */
         .main .block-container {
-            padding-bottom: 0px !important;
-            padding-top: 1rem !important;
+            padding: 1rem 1rem 0rem 1rem !important;
             max-height: 100vh !important;
-            overflow-y: hidden !important;
+            overflow: hidden !important;
         }
         
         .stApp {
@@ -36,40 +35,52 @@ st.markdown("""
             overflow: hidden !important;
         }
         
-        /* Main container styling */
+        /* Main container */
         .main-container {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 10px !important;
+            gap: 8px !important;
             padding: 0 10px !important;
-            margin-bottom: 50px !important;  /* Space for hidden footer */
+            height: calc(100vh - 2rem) !important;
         }
         
-        /* Content styling */
+        /* Image sizing */
+        .element-container img {
+            max-height: 40vh !important;
+            width: auto !important;
+            object-fit: contain !important;
+            margin: 0 auto !important;
+        }
+        
+        /* Text content */
         .character {
             font-size: 42px !important;
             font-weight: bold !important;
             margin: 5px 0 !important;
+            text-align: center !important;
         }
         
         .pinyin {
             font-size: 20px !important;
             color: #666 !important;
             margin: 5px 0 !important;
+            text-align: center !important;
         }
         
         .explanation {
             font-size: 18px !important;
             font-weight: 500 !important;
-            margin: 10px 0 !important;
+            margin: 5px 0 15px 0 !important;
+            text-align: center !important;
             padding: 0 15px !important;
         }
         
         /* Audio player */
         div.stAudio {
+            display: flex !important;
+            justify-content: center !important;
             margin: 5px auto !important;
-            width: 100px !important;
         }
         
         div.stAudio > audio {
@@ -77,11 +88,22 @@ st.markdown("""
             height: 35px !important;
         }
         
+        /* Button styling */
+        .stButton {
+            display: flex !important;
+            justify-content: center !important;
+            margin-top: auto !important;
+            padding-bottom: 20px !important;
+        }
+        
+        .stButton button {
+            width: 120px !important;
+        }
+        
         /* Hide scrollbars */
         ::-webkit-scrollbar {
             display: none !important;
         }
-        
         * {
             -ms-overflow-style: none !important;
             scrollbar-width: none !important;
