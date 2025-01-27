@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation for mobile"""
+    """Simple audio generation"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -524,31 +524,23 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation with mobile support
-        try:
-            audio_data = get_audio(current_card["chinese"])
-            if audio_data:
-                # Simpler audio styling for mobile
-                st.markdown("""
-                    <style>
-                    div.stAudio {
-                        display: flex !important;
-                        justify-content: center !important;
-                        margin: 10px auto !important;
-                    }
-                    div.stAudio > audio {
-                        min-width: 50px !important;
-                        height: 50px !important;
-                    }
-                    </style>
-                """, unsafe_allow_html=True)
-                
-                # Use columns for better mobile layout
-                col1, col2, col3 = st.columns([1,2,1])
-                with col2:
-                    st.audio(audio_data, format='audio/mp3')
-        except:
-            pass
+        # Audio implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            # Basic audio styling
+            st.markdown("""
+                <style>
+                div.stAudio {
+                    display: flex !important;
+                    justify-content: center !important;
+                    margin: 10px auto !important;
+                }
+                div.stAudio > audio {
+                    width: 180px !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
