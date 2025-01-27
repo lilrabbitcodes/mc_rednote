@@ -1,16 +1,6 @@
-import os
-import json
 import streamlit as st
-from openai import OpenAI
-import base64
-import requests
-from streamlit.components.v1 import html
-import streamlit.components.v1 as components
-from dotenv import load_dotenv
 import random
-from PIL import Image
-from io import BytesIO
-from audio_utils import generate_audio
+import os
 import hashlib
 from gtts import gTTS
 
