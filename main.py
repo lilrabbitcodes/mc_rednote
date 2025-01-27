@@ -235,28 +235,26 @@ def get_audio(text, card_index):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Generate audio
+        # Determine text to speak
         if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
+            text_to_speak = text
+            lang = 'en'
         elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+            text_to_speak = "city 不 city"
+            lang = 'zh-cn'
         else:
             text_to_speak = special_cases.get(text, text)
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-
-        # Save to temporary file with unique name
-        temp_file = f"temp_{card_index}_{int(time.time())}.mp3"
-        tts.save(temp_file)
+            lang = 'zh-cn'
+            
+        # Generate audio
+        tts = gTTS(text=text_to_speak, lang=lang, slow=False)
         
-        # Read file and convert to base64
-        with open(temp_file, "rb") as f:
-            audio_bytes = f.read()
-        os.remove(temp_file)  # Clean up
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
         
-        # Convert to base64
-        audio_b64 = base64.b64encode(audio_bytes).decode()
-        
-        return audio_b64
+        return audio_bytes
     except:
         return None
 
@@ -561,32 +559,12 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Generate audio data first
-        audio_b64 = get_audio(current_card["chinese"], st.session_state.index)
-        
-        # Audio player with dynamic update
-        if audio_b64:
-            st.markdown(f"""
-                <style>
-                .audio-container {{
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin: 15px auto;
-                }}
-                .audio-player {{
-                    width: 35px;
-                    height: 35px;
-                    border-radius: 50%;
-                    background-color: #666666;
-                }}
-                </style>
-                <div class="audio-container">
-                    <audio class="audio-player" controls key="audio_{st.session_state.index}_{int(time.time())}">
-                        <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
-                    </audio>
-                </div>
-            """, unsafe_allow_html=True)
+        # Audio implementation
+        audio_data = get_audio(current_card["chinese"], st.session_state.index)
+        if audio_data:
+            # Create a unique key for each audio component
+            unique_key = f"audio_{st.session_state.index}_{current_card['chinese']}"
+            st.audio(audio_data, format='audio/mp3', key=unique_key)
         
         # Next button
         st.markdown("""
