@@ -256,17 +256,20 @@ def get_audio(text):
         return None
 
 def get_audio_url(text):
-    """Get audio URL from GitHub repository"""
+    """Get audio URL from Google Drive"""
     try:
-        # Map Chinese text to pre-recorded MP3 URLs from GitHub
+        # Map Chinese text to Google Drive audio file IDs
         audio_urls = {
-            "牛马": "https://raw.githubusercontent.com/your-username/chinese-memes-audio/main/niuma.mp3",
-            "摸鱼": "https://raw.githubusercontent.com/your-username/chinese-memes-audio/main/moyu.mp3",
-            # Add more mappings
+            "SB": "1MznF9StNasCe9J8rfEECFHbz9M3qkwQM",  # Audio for 傻逼
+            "摸鱼": "1Ffl-R03MHiLVsGV581xnlFkfIwSJFViB",  # Audio for 摸鱼
+            "牛马": "1cAgsGHTNJIVPk3WgyjUr44np0iRQPRdi",  # Audio for 牛马
+            # Add more mappings as needed
         }
         
         if text in audio_urls:
-            return audio_urls[text]
+            file_id = audio_urls[text]
+            # Convert to direct download link format
+            return f"https://drive.google.com/uc?export=download&id={file_id}"
         return None
     except:
         return None
