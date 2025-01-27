@@ -11,6 +11,29 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
+# Hide Streamlit footer and fullscreen button
+st.markdown("""
+    <style>
+        footer {visibility: hidden;}
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        .stDeployButton {display: none;}
+        .viewerBadge_container__1QSob {display: none;}
+        .viewerBadge_link__1QSob {display: none;}
+        button[title="View fullscreen"] {visibility: hidden;}
+        
+        /* Hide footer iframe */
+        iframe[title="streamlit_footer"] {
+            display: none !important;
+        }
+        
+        /* Additional footer hiding */
+        .reportview-container .main footer {
+            visibility: hidden !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # At the top of the file, add more detailed error handling
 try:
     from gtts import gTTS
