@@ -8,7 +8,10 @@ import time
 import tempfile
 import requests
 
-# At the top of the file, add this to hide Streamlit elements
+# Must be the first Streamlit command
+st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
+
+# Now we can add the code to hide Streamlit elements
 st.markdown("""
     <style>
         #MainMenu {visibility: hidden;}
@@ -20,9 +23,6 @@ st.markdown("""
         button[title="View fullscreen"] {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
-
-# Must be the first Streamlit command
-st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
 # At the top of the file, add more detailed error handling
 try:
