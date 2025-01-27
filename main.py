@@ -255,6 +255,22 @@ def get_audio(text):
     except:
         return None
 
+def get_audio_url(text):
+    """Get audio URL from GitHub repository"""
+    try:
+        # Map Chinese text to pre-recorded MP3 URLs from GitHub
+        audio_urls = {
+            "牛马": "https://raw.githubusercontent.com/your-username/chinese-memes-audio/main/niuma.mp3",
+            "摸鱼": "https://raw.githubusercontent.com/your-username/chinese-memes-audio/main/moyu.mp3",
+            # Add more mappings
+        }
+        
+        if text in audio_urls:
+            return audio_urls[text]
+        return None
+    except:
+        return None
+
 # Flashcard data
 flashcards = [
     {
@@ -526,15 +542,13 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation
-        try:
-            audio_data = get_audio(current_card["chinese"])
-            if audio_data:
-                # Center the audio player
-                col1, col2, col3 = st.columns([1,3,1])
-                with col2:
-                    st.audio(audio_data, format='audio/mp3')
-        except:
-            pass
+        audio_url = get_audio_url(current_card["chinese"])
+        if audio_url:
+            st.markdown(f"""
+                <audio controls style="display:block; margin:10px auto; width:200px">
+                    <source src="{audio_url}" type="audio/mp3">
+                </audio>
+            """, unsafe_allow_html=True)
         
         # Next button inside main container
         st.markdown("""
