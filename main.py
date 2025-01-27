@@ -6,6 +6,7 @@ from io import BytesIO
 import base64
 import time
 import tempfile
+import requests
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -251,6 +252,52 @@ def get_audio(text):
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
         return audio_bytes.read()
+    except:
+        return None
+
+def get_audio_url(text):
+    """Get audio URL from VoiceRSS API"""
+    try:
+        # API parameters
+        API_KEY = 'your_voicerss_api_key'  # Get from https://www.voicerss.org/
+        params = {
+            'key': API_KEY,
+            'src': text,
+            'hl': 'zh-cn',  # Chinese language
+            'c': 'MP3',     # Audio format
+            'f': '16khz_16bit_stereo'  # Quality
+        }
+        
+        # Special cases for pronunciation
+        special_cases = {
+            "HHHH": "哈哈哈哈",
+            "666": "六六六",
+            "88": "八八",
+            "3Q": "三Q",
+            "WC": "哇草",
+            "SB": "傻逼",
+            "6": "六",
+            "city不city": "city 不 city"
+        }
+        
+        # English words
+        english_words = ["Vlog", "Flag", "Crush", "Emo"]
+        
+        # Determine text and language
+        if text in english_words:
+            params['src'] = text
+            params['hl'] = 'en-us'
+        elif text in special_cases:
+            params['src'] = special_cases[text]
+        
+        # Get audio URL
+        url = f"https://api.voicerss.org/"
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            return response.url
+            
+        return None
     except:
         return None
 
@@ -525,12 +572,13 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            # Center the audio player
-            col1, col2, col3 = st.columns([1,2,1])
-            with col2:
-                st.audio(audio_data, format='audio/mp3')
+        audio_url = get_audio_url(current_card["chinese"])
+        if audio_url:
+            st.markdown(f"""
+                <audio controls style="display:block; margin:10px auto; width:200px">
+                    <source src="{audio_url}" type="audio/mp3">
+                </audio>
+            """, unsafe_allow_html=True)
         
         # Next button inside main container
         st.markdown("""
