@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -246,11 +246,18 @@ def get_audio(text):
         else:
             tts = gTTS(text=text, lang='zh-cn', slow=False)
             
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        return audio_bytes.read()
+        # Create temporary file
+        temp_file = f"temp_{hash(text)}.mp3"
+        tts.save(temp_file)
+        
+        # Read file
+        with open(temp_file, 'rb') as f:
+            audio_data = f.read()
+            
+        # Clean up
+        os.remove(temp_file)
+        
+        return audio_data
     except:
         return None
 
@@ -524,25 +531,27 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            # Add CSS for mobile-friendly audio player
-            st.markdown("""
-                <style>
-                div.stAudio {
-                    display: flex !important;
-                    justify-content: center !important;
-                }
-                div.stAudio > audio {
-                    width: 40px !important;
-                    height: 40px !important;
-                    border-radius: 50% !important;
-                    background-color: #666666 !important;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            st.audio(audio_data, format='audio/mp3')
+        # Audio implementation with mobile support
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            try:
+                audio_data = get_audio(current_card["chinese"])
+                if audio_data:
+                    st.markdown("""
+                        <style>
+                        div.stAudio {
+                            display: flex !important;
+                            justify-content: center !important;
+                        }
+                        div.stAudio > audio {
+                            width: 35px !important;
+                            height: 35px !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    st.audio(audio_data, format='audio/mp3')
+            except:
+                pass
         
         # Next button inside main container
         st.markdown("""
