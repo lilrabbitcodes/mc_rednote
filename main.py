@@ -14,7 +14,7 @@ st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 # Hide Streamlit elements and adjust layout
 st.markdown("""
     <style>
-        /* Hide Streamlit elements */
+        /* Hide Streamlit elements completely */
         footer {display: none !important;}
         #MainMenu {display: none !important;}
         header {display: none !important;}
@@ -22,6 +22,7 @@ st.markdown("""
         .viewerBadge_container__1QSob {display: none !important;}
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
+        .reportview-container .main footer {display: none !important;}
         
         /* Container */
         .main .block-container {
@@ -38,13 +39,20 @@ st.markdown("""
             padding: 10px !important;
         }
         
-        /* Image sizing */
+        /* Image sizing and centering */
         .element-container img {
             max-height: 35vh !important;
             width: auto !important;
             object-fit: contain !important;
             margin: 0 auto !important;
             border-radius: 10px !important;
+            display: block !important;
+        }
+        
+        .element-container {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
         }
         
         /* Text content */
