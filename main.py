@@ -3,6 +3,7 @@ import os
 import hashlib
 from gtts import gTTS
 from io import BytesIO
+import base64
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -144,7 +145,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation with mobile support"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -167,13 +168,26 @@ def get_audio(text):
         else:
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-            
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
+
+        # Save to temporary file
+        temp_file = f"temp_{hash(text)}.mp3"
+        tts.save(temp_file)
         
-        return audio_bytes
+        # Read file and convert to base64
+        with open(temp_file, "rb") as f:
+            audio_bytes = f.read()
+        os.remove(temp_file)  # Clean up
+        
+        # Convert to base64
+        audio_b64 = base64.b64encode(audio_bytes).decode()
+        
+        # Create HTML5 audio element
+        audio_html = f'''
+            <audio controls style="height:30px;width:40px">
+                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+            </audio>
+        '''
+        return audio_html
     except:
         return None
 
@@ -478,10 +492,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - simplified implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # Audio with HTML5 player
+        audio_html = get_audio(current_card["chinese"])
+        if audio_html:
+            st.markdown(audio_html, unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
