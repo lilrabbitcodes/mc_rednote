@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation for mobile"""
+    """Simple audio generation"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -231,6 +231,8 @@ def get_audio(text):
             "3Q": "三Q",
             "WC": "哇草",
             "SB": "傻逼",
+            "6": "六",
+            "city不city": "city 不 city"
         }
         
         # English words to pronounce as-is
@@ -239,22 +241,16 @@ def get_audio(text):
         # Generate audio
         if text in english_words:
             tts = gTTS(text=text, lang='en', slow=False)
-        elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+        elif text in special_cases:
+            tts = gTTS(text=special_cases[text], lang='zh-cn', slow=False)
         else:
-            text_to_speak = special_cases.get(text, text)
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-
-        # Create temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
-            tts.save(fp.name)
-            # Read the file
-            with open(fp.name, 'rb') as audio_file:
-                audio_data = audio_file.read()
-            # Clean up
-            os.unlink(fp.name)
-            return audio_data
+            tts = gTTS(text=text, lang='zh-cn', slow=False)
             
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        return audio_bytes.read()
     except:
         return None
 
@@ -528,15 +524,25 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation with mobile optimization
-        try:
-            audio_data = get_audio(current_card["chinese"])
-            if audio_data:
-                col1, col2, col3 = st.columns([1,2,1])
-                with col2:
-                    st.audio(audio_data, format='audio/mp3')
-        except:
-            pass
+        # Audio implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            # Add CSS for mobile-friendly audio player
+            st.markdown("""
+                <style>
+                div.stAudio {
+                    display: flex !important;
+                    justify-content: center !important;
+                }
+                div.stAudio > audio {
+                    width: 40px !important;
+                    height: 40px !important;
+                    border-radius: 50% !important;
+                    background-color: #666666 !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
