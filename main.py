@@ -114,17 +114,19 @@ audio::-webkit-media-controls-time-remaining-display {
 </style>
 """, unsafe_allow_html=True)
 
-def generate_audio(text):
+def generate_audio(text, pinyin):
     """Generate audio for the given text in Mandarin"""
     if not AUDIO_ENABLED:
         return None
         
     try:
         os.makedirs("audio_cache", exist_ok=True)
-        audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
+        # Use pinyin for audio generation instead of Chinese characters
+        audio_path = f"audio_cache/{hashlib.md5(pinyin.encode()).hexdigest()}.mp3"
         
         if not os.path.exists(audio_path):
-            tts = gTTS(text=text, lang='zh-cn', slow=False)
+            # Use pinyin for text-to-speech
+            tts = gTTS(text=pinyin, lang='zh-cn', slow=False)
             tts.save(audio_path)
         
         return audio_path
@@ -226,7 +228,7 @@ flashcards = [
     },
     {
         "chinese": "Emo",
-        "pinyin": "-",
+        "pinyin": "emo",
         "english": "Sad or heartbroken",
         "meme_url": "https://i.imgur.com/0xx3tk8.png"
     },
@@ -395,7 +397,7 @@ def main():
     
     # Generate and display audio only if enabled
     if AUDIO_ENABLED:
-        audio_path = generate_audio(current_card["chinese"])
+        audio_path = generate_audio(current_card["chinese"], current_card["pinyin"])
         if audio_path and os.path.exists(audio_path):
             st.audio(audio_path, format='audio/mp3')
     
