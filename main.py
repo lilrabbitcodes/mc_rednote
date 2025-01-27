@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import hashlib
+from gtts import gTTS
+from io import BytesIO
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -362,6 +364,40 @@ flashcards = [
     }
 ]
 
+def get_audio(text):
+    """Simple audio generation"""
+    try:
+        # Special cases for pronunciation
+        special_cases = {
+            "HHHH": "哈哈哈哈",
+            "666": "六六六",
+            "88": "八八",
+            "3Q": "三Q",
+            "WC": "哇草",
+            "SB": "傻逼",
+        }
+        
+        # English words to pronounce as-is
+        english_words = ["Vlog", "Flag", "Crush", "Emo"]
+        
+        # Generate audio
+        if text in english_words:
+            tts = gTTS(text=text, lang='en', slow=False)
+        elif text == "city不city":
+            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+        else:
+            text_to_speak = special_cases.get(text, text)
+            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
+            
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        
+        return audio_bytes
+    except:
+        return None
+
 def main():
     # Initialize session state
     if 'index' not in st.session_state:
@@ -393,6 +429,11 @@ def main():
                 <div class="explanation">{current_card['english']}</div>
             </div>
         """, unsafe_allow_html=True)
+        
+        # Audio - simplified implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
