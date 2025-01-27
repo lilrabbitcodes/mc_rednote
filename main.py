@@ -111,22 +111,65 @@ audio::-webkit-media-controls-time-remaining-display {
     display: flex !important;
     justify-content: center !important;
 }
+
+/* Mobile optimization */
+.main-container {
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+/* Adjust image container */
+.image-container {
+    flex: 0 0 auto;
+    margin-bottom: 10px;
+}
+
+/* Text content */
+.text-content {
+    flex: 0 0 auto;
+    margin: 10px 0;
+}
+
+/* Button container */
+.button-container {
+    flex: 0 0 auto;
+    margin-top: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
 
-def generate_audio(text, pinyin):
-    """Generate audio for the given text in Mandarin"""
+def generate_audio(text):
+    """Generate audio for the given text in Mandarin character by character"""
     if not AUDIO_ENABLED:
         return None
         
     try:
         os.makedirs("audio_cache", exist_ok=True)
-        # Use pinyin for audio generation instead of Chinese characters
-        audio_path = f"audio_cache/{hashlib.md5(pinyin.encode()).hexdigest()}.mp3"
+        
+        # Special cases mapping
+        special_cases = {
+            "HHHH": "哈哈哈哈",  # Convert HHHH to actual Chinese characters
+            "666": "六六六",      # Ensure 666 is pronounced as individual numbers
+            "88": "八八",         # Ensure 88 is pronounced as individual numbers
+            "3Q": "三Q",          # Special case for 3Q
+            "WC": "哇草",         # Convert WC to actual pronunciation
+            "SB": "傻逼",         # Convert SB to actual characters
+        }
+        
+        # Check if text is a special case
+        text_to_speak = special_cases.get(text, text)
+        
+        # Split text into individual characters
+        characters = list(text_to_speak)
+        audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
         
         if not os.path.exists(audio_path):
-            # Use pinyin for text-to-speech
-            tts = gTTS(text=pinyin, lang='zh-cn', slow=False)
+            # Join characters with spaces for clearer pronunciation
+            spaced_text = ' '.join(characters)
+            tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
             tts.save(audio_path)
         
         return audio_path
@@ -377,36 +420,80 @@ def main():
     if 'index' not in st.session_state:
         st.session_state.index = 0
 
-    # Get current flashcard
-    current_card = flashcards[st.session_state.index]
-    
-    # Display media
-    st.markdown(f'''
-        <div style="width:100%;max-width:350px;margin:0 auto;">
-            <img src="{current_card['meme_url']}" 
-                 style="width:100%;border-radius:15px;object-fit:cover;">
-        </div>
-    ''', unsafe_allow_html=True)
-    
-    # Display text
-    st.markdown(f"""
-        <div class="character">{current_card['chinese']}</div>
-        <div class="pinyin">{current_card['pinyin']}</div>
-        <div class="explanation">{current_card['english']}</div>
-    """, unsafe_allow_html=True)
-    
-    # Generate and display audio only if enabled
-    if AUDIO_ENABLED:
-        audio_path = generate_audio(current_card["chinese"], current_card["pinyin"])
-        if audio_path and os.path.exists(audio_path):
-            st.audio(audio_path, format='audio/mp3')
-    
-    # Next button
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
+    # Create a container with fixed height for mobile optimization
+    with st.container():
+        st.markdown("""
+            <style>
+            /* Mobile optimization */
+            .main-container {
+                max-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 10px;
+            }
+            
+            /* Adjust image container */
+            .image-container {
+                flex: 0 0 auto;
+                margin-bottom: 10px;
+            }
+            
+            /* Text content */
+            .text-content {
+                flex: 0 0 auto;
+                margin: 10px 0;
+            }
+            
+            /* Button container */
+            .button-container {
+                flex: 0 0 auto;
+                margin-top: 10px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        # Get current flashcard
+        current_card = flashcards[st.session_state.index]
+        
+        # Main container
+        st.markdown("""
+            <div class="main-container">
+        """, unsafe_allow_html=True)
+        
+        # Image
+        st.markdown(f'''
+            <div class="image-container">
+                <img src="{current_card['meme_url']}" 
+                     style="width:100%;max-width:350px;border-radius:15px;object-fit:cover;margin:0 auto;display:block;">
+            </div>
+        ''', unsafe_allow_html=True)
+        
+        # Text content
+        st.markdown(f"""
+            <div class="text-content">
+                <div class="character">{current_card['chinese']}</div>
+                <div class="pinyin">{current_card['pinyin']}</div>
+                <div class="explanation">{current_card['english']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Audio
+        if AUDIO_ENABLED:
+            audio_path = generate_audio(current_card["chinese"])
+            if audio_path and os.path.exists(audio_path):
+                st.audio(audio_path, format='audio/mp3')
+        
+        # Next button
+        st.markdown("""
+            <div class="button-container">
+        """, unsafe_allow_html=True)
         if st.button("Next Card"):
             st.session_state.index = (st.session_state.index + 1) % len(flashcards)
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
