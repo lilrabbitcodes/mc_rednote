@@ -1,11 +1,6 @@
 import streamlit as st
 import os
 import hashlib
-from gtts import gTTS
-from io import BytesIO
-import tempfile
-import base64
-from urllib.parse import quote
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -84,7 +79,7 @@ st.markdown("""
 
 /* Audio player styling */
 .stAudio {
-    width: 100% !important;
+    width: 50% !important;
     margin: 5px auto !important;
     display: flex !important;
     justify-content: center !important;
@@ -146,10 +141,13 @@ audio::-webkit-media-controls-time-remaining-display {
 </style>
 """, unsafe_allow_html=True)
 
-def get_audio_url(text):
-    """Get audio URL with special cases"""
+def generate_audio(text):
+    """Generate audio for the given text in Mandarin character by character"""
+    if not AUDIO_ENABLED:
+        return None
+        
     try:
-        # Special cases for pronunciation
+        # Special cases mapping
         special_cases = {
             "HHHH": "哈哈哈哈",
             "666": "六六六",
@@ -159,25 +157,35 @@ def get_audio_url(text):
             "SB": "傻逼",
         }
         
-        # English words to pronounce as-is
+        # Words to pronounce in English
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Determine text to speak
-        if text in english_words:
-            text_to_speak = text
-            lang = 'en'
-        elif text == "city不city":
-            text_to_speak = "city 不 city"
-            lang = 'zh-CN'
-        else:
-            text_to_speak = special_cases.get(text, text)
-            lang = 'zh-CN'
+        try:
+            # Check if it's an English word
+            if text in english_words:
+                tts = gTTS(text=text, lang='en', slow=False)
+            elif text == "city不city":
+                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+            else:
+                text_to_speak = special_cases.get(text, text)
+                characters = list(text_to_speak)
+                spaced_text = ' '.join(characters)
+                tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
+
+            # Generate audio in memory
+            from io import BytesIO
+            audio_bytes = BytesIO()
+            tts.write_to_fp(audio_bytes)
+            audio_bytes.seek(0)
             
-        # Use Microsoft Edge TTS service (more reliable than Google)
-        text_encoded = quote(text_to_speak)
-        return f"https://api.edge-tts.com/tts?text={text_encoded}&lang={lang}"
-        
-    except:
+            return audio_bytes
+            
+        except Exception as e:
+            st.warning(f"Could not generate audio for: {text}")
+            return None
+            
+    except Exception as e:
+        st.warning("Audio temporarily unavailable")
         return None
 
 # Flashcard data
@@ -425,6 +433,37 @@ def main():
 
     # Create a container with fixed height for mobile optimization
     with st.container():
+        st.markdown("""
+            <style>
+            /* Mobile optimization */
+            .main-container {
+                max-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 10px;
+            }
+            
+            /* Adjust image container */
+            .image-container {
+                flex: 0 0 auto;
+                margin-bottom: 10px;
+            }
+            
+            /* Text content */
+            .text-content {
+                flex: 0 0 auto;
+                margin: 10px 0;
+            }
+            
+            /* Button container */
+            .button-container {
+                flex: 0 0 auto;
+                margin-top: 10px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
         # Get current flashcard
         current_card = flashcards[st.session_state.index]
         
@@ -450,63 +489,14 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio using custom play button with preload
-        audio_url = get_audio_url(current_card["chinese"])
-        if audio_url:
-            st.markdown(f"""
-                <style>
-                .audio-button {{
-                    width: 40px;
-                    height: 40px;
-                    background-color: #666666;
-                    border-radius: 50%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    cursor: pointer;
-                    margin: 10px auto;
-                    border: none;
-                    transition: background-color 0.3s;
-                }}
-                .audio-button:hover {{
-                    background-color: #777777;
-                }}
-                .play-icon {{
-                    width: 0;
-                    height: 0;
-                    border-style: solid;
-                    border-width: 10px 0 10px 16px;
-                    border-color: transparent transparent transparent white;
-                    margin-left: 4px;
-                }}
-                </style>
-                <div style="display:flex;justify-content:center;margin:10px 0;">
-                    <button class="audio-button" onclick="playAudioWithFeedback('{audio_url}', this)">
-                        <div class="play-icon"></div>
-                    </button>
-                </div>
-                <script>
-                let audio = new Audio();
-                
-                function playAudioWithFeedback(url, button) {{
-                    button.style.backgroundColor = '#888888';  // Visual feedback
-                    
-                    audio.src = url;
-                    audio.play()
-                    .then(() => {{
-                        // Success
-                        setTimeout(() => {{
-                            button.style.backgroundColor = '#666666';
-                        }}, 500);
-                    }})
-                    .catch((error) => {{
-                        // Error handling
-                        button.style.backgroundColor = '#666666';
-                        console.error('Audio playback failed:', error);
-                    }});
-                }}
-                </script>
-            """, unsafe_allow_html=True)
+        # Audio with better error handling
+        if AUDIO_ENABLED:
+            try:
+                audio_data = generate_audio(current_card["chinese"])
+                if audio_data:
+                    st.audio(audio_data, format='audio/mp3')
+            except:
+                st.warning("Audio player unavailable")
         
         # Next button
         st.markdown("""
