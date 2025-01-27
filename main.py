@@ -256,17 +256,10 @@ def get_audio(text):
         return None
 
 def get_audio_url(text):
-    """Get audio URL from VoiceRSS API"""
+    """Get audio URL from Google Translate (free)"""
     try:
-        # API parameters
-        API_KEY = 'your_voicerss_api_key'  # Get from https://www.voicerss.org/
-        params = {
-            'key': API_KEY,
-            'src': text,
-            'hl': 'zh-cn',  # Chinese language
-            'c': 'MP3',     # Audio format
-            'f': '16khz_16bit_stereo'  # Quality
-        }
+        # Base URL for Google Translate TTS
+        base_url = "https://translate.google.com/translate_tts"
         
         # Special cases for pronunciation
         special_cases = {
@@ -285,19 +278,29 @@ def get_audio_url(text):
         
         # Determine text and language
         if text in english_words:
-            params['src'] = text
-            params['hl'] = 'en-us'
+            lang = 'en'
+            text_to_speak = text
         elif text in special_cases:
-            params['src'] = special_cases[text]
-        
-        # Get audio URL
-        url = f"https://api.voicerss.org/"
-        response = requests.get(url, params=params)
-        
-        if response.status_code == 200:
-            return response.url
+            lang = 'zh'
+            text_to_speak = special_cases[text]
+        else:
+            lang = 'zh'
+            text_to_speak = text
             
-        return None
+        # Create URL parameters
+        params = {
+            'ie': 'UTF-8',
+            'q': text_to_speak,
+            'tl': lang,
+            'client': 'tw-ob',
+            'ttsspeed': 1
+        }
+        
+        # Construct the URL
+        param_string = '&'.join(f'{k}={requests.utils.quote(str(v))}' for k, v in params.items())
+        audio_url = f"{base_url}?{param_string}"
+        
+        return audio_url
     except:
         return None
 
