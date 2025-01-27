@@ -160,29 +160,21 @@ def get_audio(text):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Create static audio directory if it doesn't exist
-        if not os.path.exists("static_audio"):
-            os.makedirs("static_audio")
+        # Generate audio
+        if text in english_words:
+            tts = gTTS(text=text, lang='en', slow=False)
+        elif text == "city不city":
+            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+        else:
+            text_to_speak = special_cases.get(text, text)
+            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-        # Generate filename based on text
-        filename = f"static_audio/{hash(text)}.mp3"
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
         
-        # Only generate if file doesn't exist
-        if not os.path.exists(filename):
-            # Generate audio
-            if text in english_words:
-                tts = gTTS(text=text, lang='en', slow=False)
-            elif text == "city不city":
-                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-            else:
-                text_to_speak = special_cases.get(text, text)
-                tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-                
-            # Save to file
-            tts.save(filename)
-        
-        # Return the filename
-        return filename
+        return audio_bytes
     except:
         return None
 
@@ -456,11 +448,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - static file implementation
-        audio_file = get_audio(current_card["chinese"])
-        if audio_file and os.path.exists(audio_file):
-            with open(audio_file, 'rb') as f:
-                st.audio(f.read(), format='audio/mp3')
+        # Audio - simplified implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
