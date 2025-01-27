@@ -11,7 +11,7 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide Streamlit elements and adjust layout
+# Hide Streamlit elements and optimize layout
 st.markdown("""
     <style>
         /* Hide Streamlit elements */
@@ -23,87 +23,83 @@ st.markdown("""
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
         
-        /* Static container */
-        .main {
-            overflow: hidden !important;
-            height: 100vh !important;
-        }
-        
+        /* Container optimization */
         .stApp {
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden !important;
-            height: 100vh !important;
+            max-width: 100vw !important;
         }
         
-        /* Layout adjustments */
+        .main .block-container {
+            padding: 1rem !important;
+            max-width: 100% !important;
+        }
+        
+        /* Flashcard layout */
         .main-container {
             display: flex !important;
             flex-direction: column !important;
-            height: 100vh !important;
+            align-items: center !important;
+            gap: 15px !important;
             padding: 10px !important;
-            gap: 10px !important;
+            margin-top: 0 !important;
         }
-
+        
         /* Controls at top */
         .controls-container {
+            width: 100% !important;
             display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            padding: 5px 10px !important;
+            justify-content: center !important;
+            gap: 20px !important;
             margin-bottom: 10px !important;
         }
-
-        /* Image container */
-        .image-container {
-            flex: 0 0 auto !important;
-            margin: 10px auto !important;
+        
+        /* Image sizing */
+        .image-container img {
+            width: 100% !important;
+            max-width: 350px !important;
+            border-radius: 15px !important;
+            margin: 0 auto !important;
         }
-
-        /* Text content spacing */
-        .text-content {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 8px !important;
-            margin: 10px 0 !important;
-        }
-
+        
+        /* Text styling */
         .character {
             font-size: 42px !important;
             font-weight: bold !important;
-            margin: 0 !important;
+            margin: 5px 0 !important;
+            text-align: center !important;
         }
-
+        
         .pinyin {
             font-size: 20px !important;
             color: #666 !important;
-            margin: 0 !important;
+            margin: 5px 0 !important;
+            text-align: center !important;
         }
-
+        
         .explanation {
             font-size: 18px !important;
             font-weight: 500 !important;
-            margin: 0 !important;
-            padding: 0 20px !important;
+            margin: 5px 0 !important;
+            text-align: center !important;
+            padding: 0 15px !important;
         }
-
-        /* Audio player styling */
+        
+        /* Audio player */
         div.stAudio {
-            margin: 5px auto !important;
+            margin: 0 auto !important;
+            width: 100px !important;
         }
-
+        
         div.stAudio > audio {
-            width: 120px !important;
+            width: 100px !important;
             height: 35px !important;
         }
-
-        /* Hide scrollbars */
-        ::-webkit-scrollbar {
-            display: none !important;
-        }
-        * {
-            -ms-overflow-style: none !important;
-            scrollbar-width: none !important;
+        
+        /* Button styling */
+        .stButton button {
+            width: 100px !important;
+            margin: 0 auto !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -624,13 +620,19 @@ def main():
             <div class="main-container">
         """, unsafe_allow_html=True)
         
+        # Controls at top
+        col1, col2 = st.columns(2)
+        with col1:
+            audio_bytes = get_audio_url(current_card["chinese"])
+            if audio_bytes:
+                st.audio(audio_bytes, format='audio/mp3')
+        with col2:
+            if st.button("Next Card"):
+                st.session_state.index = (st.session_state.index + 1) % len(flashcards)
+                st.rerun()
+        
         # Image
-        st.markdown(f'''
-            <div class="image-container">
-                <img src="{current_card['meme_url']}" 
-                     style="width:100%;max-width:350px;border-radius:15px;object-fit:cover;margin:0 auto;display:block;">
-            </div>
-        ''', unsafe_allow_html=True)
+        st.image(current_card['meme_url'], use_column_width=True)
         
         # Text content
         st.markdown(f"""
@@ -640,26 +642,6 @@ def main():
                 <div class="explanation">{current_card['english']}</div>
             </div>
         """, unsafe_allow_html=True)
-        
-        # Controls container with audio and next button
-        st.markdown("""
-            <div class="controls-container">
-        """, unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            # Audio player
-            audio_bytes = get_audio_url(current_card["chinese"])
-            if audio_bytes:
-                st.audio(audio_bytes, format='audio/mp3')
-        
-        with col2:
-            # Next button
-            if st.button("Next Card"):
-                st.session_state.index = (st.session_state.index + 1) % len(flashcards)
-                st.rerun()
-        
-        st.markdown("</div>", unsafe_allow_html=True)
         
         # Close main container
         st.markdown("</div>", unsafe_allow_html=True)
