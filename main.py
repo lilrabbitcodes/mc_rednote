@@ -268,8 +268,8 @@ def get_audio_url(text):
         
         if text in audio_urls:
             file_id = audio_urls[text]
-            # Convert to direct download link format
-            return f"https://drive.google.com/uc?export=download&id={file_id}"
+            # Use direct media link format
+            return f"https://drive.google.com/file/d/{file_id}/preview"
         return None
     except:
         return None
@@ -548,9 +548,11 @@ def main():
         audio_url = get_audio_url(current_card["chinese"])
         if audio_url:
             st.markdown(f"""
-                <audio controls style="display:block; margin:10px auto; width:200px">
-                    <source src="{audio_url}" type="audio/mp3">
-                </audio>
+                <iframe 
+                    src="{audio_url}" 
+                    allow="autoplay" 
+                    style="display:block; margin:10px auto; width:250px; height:55px; border:none;">
+                </iframe>
             """, unsafe_allow_html=True)
         
         # Next button inside main container
