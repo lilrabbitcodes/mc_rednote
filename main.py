@@ -72,7 +72,7 @@ st.markdown("""
 
 /* Audio player styling */
 .stAudio {
-    width: 100% !important;
+    width: 50% !important;
     margin: 5px auto !important;
     display: flex !important;
     justify-content: center !important;
