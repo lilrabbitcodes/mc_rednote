@@ -91,12 +91,13 @@ st.markdown("""
 }
 
 audio::-webkit-media-controls-panel {
-    background-color: #e0e0e0 !important;
+    background-color: #666666 !important;  /* Darker grey */
 }
 
 audio::-webkit-media-controls-play-button {
     transform: scale(1.2) !important;
     margin: 0 8px !important;
+    color: white !important;
 }
 
 audio::-webkit-media-controls-current-time-display,
@@ -145,7 +146,228 @@ flashcards = [
         "english": "Slacking off, quiet quitting",
         "meme_url": "https://i.imgur.com/sRUAKan.png"
     },
-    # ... (add all other flashcards here)
+    {
+        "chinese": "一身班味",
+        "pinyin": "yī shēn bān wèi",
+        "english": "Lingering exhaustion after work",
+        "meme_url": "https://i.imgur.com/XAUp83k.png"
+    },
+    {
+        "chinese": "班味",
+        "pinyin": "bān wèi",
+        "english": "Corporate fatigue, loss of energy",
+        "meme_url": "https://i.imgur.com/XAUp83k.png"
+    },
+    {
+        "chinese": "灵活就业",
+        "pinyin": "líng huó jiù yè",
+        "english": "Unemployed but pretending it's a choice",
+        "meme_url": "https://i.imgur.com/sKSPQTs.png"
+    },
+    {
+        "chinese": "Crush",
+        "pinyin": "crush",
+        "english": "Instant attraction",
+        "meme_url": "https://i.imgur.com/7twp4Lc.png"
+    },
+    {
+        "chinese": "被硬控了",
+        "pinyin": "bèi yìng kòng le",
+        "english": "Irresistible attraction",
+        "meme_url": "https://i.imgur.com/LzXb4y3.png"
+    },
+    {
+        "chinese": "性缩力",
+        "pinyin": "xìng suō lì",
+        "english": "Opposite of attraction",
+        "meme_url": "https://i.imgur.com/qCqeqYJ.png"
+    },
+    {
+        "chinese": "偷感很重",
+        "pinyin": "tōu gǎn hěn zhòng",
+        "english": "Lowkey or sneaky vibe",
+        "meme_url": "https://i.imgur.com/q0d9vKH.png"
+    },
+    {
+        "chinese": "Vlog",
+        "pinyin": "vlog",
+        "english": "Documenting life",
+        "meme_url": "https://i.imgur.com/kDjGCph.png"
+    },
+    {
+        "chinese": "Flag",
+        "pinyin": "flag",
+        "english": "Bold claim likely to fail",
+        "meme_url": "https://i.imgur.com/464A5uR.png"
+    },
+    {
+        "chinese": "红温",
+        "pinyin": "hóng wēn",
+        "english": "Emotional reaction, turning red",
+        "meme_url": "https://i.imgur.com/seZ64Fx.png"
+    },
+    {
+        "chinese": "搞抽象",
+        "pinyin": "gǎo chōu xiàng",
+        "english": "Acting absurd to cope",
+        "meme_url": "https://i.imgur.com/vuaWWV4.png"
+    },
+    {
+        "chinese": "city不city",
+        "pinyin": "city bù city",
+        "english": "Trendy or modern",
+        "meme_url": "https://i.imgur.com/hFX073q.png"
+    },
+    {
+        "chinese": "包××的",
+        "pinyin": "bāo ×× de",
+        "english": "Guaranteed success",
+        "meme_url": "https://i.imgur.com/ZS3X6JO.png"
+    },
+    {
+        "chinese": "Emo",
+        "pinyin": "-",
+        "english": "Sad or heartbroken",
+        "meme_url": "https://i.imgur.com/0xx3tk8.png"
+    },
+    {
+        "chinese": "拴Q",
+        "pinyin": "shuan Q",
+        "english": "Meme version of \"Thank You\"",
+        "meme_url": "https://i.imgur.com/8lPCXdh.png"
+    },
+    {
+        "chinese": "社恐",
+        "pinyin": "shè kǒng",
+        "english": "Socially anxious",
+        "meme_url": "https://i.imgur.com/XIRwdm3.png"
+    },
+    {
+        "chinese": "社牛",
+        "pinyin": "shè niú",
+        "english": "Socially outgoing",
+        "meme_url": "https://i.imgur.com/IIqTkH4.png"
+    },
+    {
+        "chinese": "666",
+        "pinyin": "liù liù liù",
+        "english": "Awesome, impressive",
+        "meme_url": "https://i.imgur.com/ddwkPV4.png"
+    },
+    {
+        "chinese": "88",
+        "pinyin": "bā bā",
+        "english": "Bye bye",
+        "meme_url": "https://i.imgur.com/13H8jPA.png"
+    },
+    {
+        "chinese": "笔芯",
+        "pinyin": "bǐ xīn",
+        "english": "I love you (creative phrase)",
+        "meme_url": "https://i.imgur.com/nRSJA1Q.png"
+    },
+    {
+        "chinese": "3Q",
+        "pinyin": "sān Q",
+        "english": "Thank you",
+        "meme_url": "https://i.imgur.com/JECZsl8.png"
+    },
+    {
+        "chinese": "WC",
+        "pinyin": "wa chao",
+        "english": "WTF",
+        "meme_url": "https://i.imgur.com/L8hnza7.png"
+    },
+    {
+        "chinese": "安利",
+        "pinyin": "ān lì",
+        "english": "Strong recommendation",
+        "meme_url": "https://i.imgur.com/vzVB9VC.png"
+    },
+    {
+        "chinese": "HHHH",
+        "pinyin": "hā hā hā hā",
+        "english": "LOL",
+        "meme_url": "https://i.imgur.com/W4jJdt5.png"
+    },
+    {
+        "chinese": "YYDS",
+        "pinyin": "yǒng yuǎn de shén",
+        "english": "GOAT (Greatest of All Time)",
+        "meme_url": "https://i.imgur.com/PtQGQ77.png"
+    },
+    {
+        "chinese": "酷",
+        "pinyin": "kù",
+        "english": "Cool",
+        "meme_url": "https://i.imgur.com/7dDJClk.png"
+    },
+    {
+        "chinese": "SB",
+        "pinyin": "shǎ bī",
+        "english": "Idiot (harsh insult)",
+        "meme_url": "https://i.imgur.com/FJjMn7t.png"
+    },
+    {
+        "chinese": "你是对的",
+        "pinyin": "nǐ shì duì de",
+        "english": "You are right (sarcastic)",
+        "meme_url": "https://i.imgur.com/LdzFanQ.png"
+    },
+    {
+        "chinese": "牛",
+        "pinyin": "niú",
+        "english": "Awesome",
+        "meme_url": "https://i.imgur.com/xhKTWCt.png"
+    },
+    {
+        "chinese": "我没了",
+        "pinyin": "wǒ méi le",
+        "english": "I can't handle it",
+        "meme_url": "https://i.imgur.com/YUXjP5f.png"
+    },
+    {
+        "chinese": "有一说一",
+        "pinyin": "yǒu yī shuō yī",
+        "english": "To be honest",
+        "meme_url": "https://i.imgur.com/7umeQ7Q.png"
+    },
+    {
+        "chinese": "6",
+        "pinyin": "liù",
+        "english": "Me too",
+        "meme_url": "https://i.imgur.com/e8TTGfo.png"
+    },
+    {
+        "chinese": "笑死我了",
+        "pinyin": "xiào sǐ wǒ le",
+        "english": "ROFL",
+        "meme_url": "https://i.imgur.com/hBuT8Ok.png"
+    },
+    {
+        "chinese": "哇塞",
+        "pinyin": "wa sāi",
+        "english": "Wow",
+        "meme_url": "https://i.imgur.com/ASd2BzG.png"
+    },
+    {
+        "chinese": "不懂就问",
+        "pinyin": "bù dǒng jiù wèn",
+        "english": "Just want to ask",
+        "meme_url": "https://i.imgur.com/YYFL7pm.png"
+    },
+    {
+        "chinese": "哇",
+        "pinyin": "wa",
+        "english": "Wow (versatile usage)",
+        "meme_url": "https://i.imgur.com/xetN5qs.png"
+    },
+    {
+        "chinese": "六",
+        "pinyin": "liù",
+        "english": "Awesome, smooth",
+        "meme_url": "https://i.imgur.com/Cq2YmpK.png"
+    }
 ]
 
 def main():
