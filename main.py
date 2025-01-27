@@ -220,7 +220,7 @@ audio::-webkit-media-controls-time-remaining-display {
     </style>
 """, unsafe_allow_html=True)
 
-def get_audio(text):
+def get_audio(text, card_index):
     """Simple audio generation for mobile"""
     try:
         # Special cases for pronunciation
@@ -251,10 +251,11 @@ def get_audio(text):
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
         
-        # Convert to base64 for HTML5 audio
+        # Convert to base64 with unique identifier
         audio_b64 = base64.b64encode(audio_bytes.read()).decode()
+        timestamp = int(time.time() * 1000)
         
-        # Create mobile-friendly HTML5 audio element
+        # Create mobile-friendly HTML5 audio element with unique ID
         audio_html = f'''
             <div style="display:flex;justify-content:center;align-items:center;margin:10px auto;">
                 <audio 
@@ -263,8 +264,9 @@ def get_audio(text):
                     style="width:100px;height:40px;"
                     playsinline
                     webkit-playsinline
+                    id="audio_{card_index}_{timestamp}"
                 >
-                    <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                    <source src="data:audio/mp3;base64,{audio_b64}?t={timestamp}" type="audio/mp3">
                 </audio>
             </div>
         '''
@@ -543,7 +545,7 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation with mobile support
-        audio_html = get_audio(current_card["chinese"])
+        audio_html = get_audio(current_card["chinese"], st.session_state.index)
         if audio_html:
             st.markdown(audio_html, unsafe_allow_html=True)
         
