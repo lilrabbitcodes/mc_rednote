@@ -147,6 +147,9 @@ audio::-webkit-media-controls-time-remaining-display {
 def get_audio(text):
     """Simple audio generation"""
     try:
+        # Add debug info
+        st.write(f"Debug: Processing audio for {text}")
+        
         # Special cases for pronunciation
         special_cases = {
             "HHHH": "哈哈哈哈",
@@ -161,21 +164,31 @@ def get_audio(text):
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
         # Generate audio
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-        elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-        else:
-            text_to_speak = special_cases.get(text, text)
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
+        try:
+            if text in english_words:
+                st.write("Debug: Using English TTS")
+                tts = gTTS(text=text, lang='en', slow=False)
+            elif text == "city不city":
+                st.write("Debug: Using mixed TTS")
+                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+            else:
+                text_to_speak = special_cases.get(text, text)
+                st.write(f"Debug: Using Chinese TTS for {text_to_speak}")
+                tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
+                
+            # Save to BytesIO
+            audio_bytes = BytesIO()
+            tts.write_to_fp(audio_bytes)
+            audio_bytes.seek(0)
+            st.write("Debug: Audio generated successfully")
             
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        
-        return audio_bytes
-    except:
+            return audio_bytes
+        except Exception as e:
+            st.error(f"Debug: Error in TTS: {str(e)}")
+            return None
+            
+    except Exception as e:
+        st.error(f"Debug: Error in audio generation: {str(e)}")
         return None
 
 # Flashcard data
@@ -448,10 +461,16 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - simplified implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # Audio with debug info
+        try:
+            audio_data = get_audio(current_card["chinese"])
+            if audio_data:
+                st.write("Debug: Attempting to play audio")
+                st.audio(audio_data, format='audio/mp3')
+            else:
+                st.error("Debug: No audio data generated")
+        except Exception as e:
+            st.error(f"Debug: Error playing audio: {str(e)}")
         
         # Next button
         st.markdown("""
