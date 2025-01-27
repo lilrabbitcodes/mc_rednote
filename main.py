@@ -266,8 +266,11 @@ def get_audio_url(text):
         
         if text in audio_urls:
             file_id = audio_urls[text]
-            # Use direct streaming URL
-            return f"https://drive.google.com/uc?id={file_id}"
+            # Get the audio data directly
+            url = f"https://drive.google.com/uc?id={file_id}&export=download"
+            response = requests.get(url, stream=True)
+            if response.status_code == 200:
+                return BytesIO(response.content)
         return None
     except:
         return None
@@ -542,23 +545,13 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Simple audio player with immediate playback
-        audio_url = get_audio_url(current_card["chinese"])
-        if audio_url:
-            # Center the audio button
+        # Simple audio player
+        audio_bytes = get_audio_url(current_card["chinese"])
+        if audio_bytes:
+            # Center the audio player
             col1, col2, col3 = st.columns([1,2,1])
             with col2:
-                st.markdown(f"""
-                    <audio id="audio_{st.session_state.index}" style="display:none">
-                        <source src="{audio_url}" type="audio/mp3">
-                    </audio>
-                    <button 
-                        onclick="document.getElementById('audio_{st.session_state.index}').play()"
-                        style="background:none; border:none; font-size:24px; cursor:pointer; padding:10px;"
-                    >
-                        🔊
-                    </button>
-                """, unsafe_allow_html=True)
+                st.audio(audio_bytes, format='audio/mp3')
         
         # Next button inside main container
         st.markdown("""
