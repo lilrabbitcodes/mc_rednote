@@ -3,6 +3,7 @@ import os
 import hashlib
 from gtts import gTTS
 from io import BytesIO
+import base64
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -365,7 +366,7 @@ flashcards = [
 ]
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation with better error handling"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -380,6 +381,9 @@ def get_audio(text):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
+        # Create a unique filename for each text
+        filename = f"temp_{hash(text)}.mp3"
+        
         # Generate audio
         if text in english_words:
             tts = gTTS(text=text, lang='en', slow=False)
@@ -389,13 +393,23 @@ def get_audio(text):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
+        # Save to temporary file
+        tts.save(filename)
         
-        return audio_bytes
-    except:
+        # Read the file and encode to base64
+        with open(filename, "rb") as f:
+            audio_bytes = f.read()
+        
+        # Clean up the temporary file
+        os.remove(filename)
+        
+        # Create audio HTML
+        audio_base64 = base64.b64encode(audio_bytes).decode()
+        audio_tag = f'<audio controls><source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3"></audio>'
+        
+        return audio_tag
+    except Exception as e:
+        st.error(f"Audio error: {str(e)}")
         return None
 
 def main():
@@ -430,10 +444,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - simplified implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # Audio with HTML5 player
+        audio_tag = get_audio(current_card["chinese"])
+        if audio_tag:
+            st.markdown(audio_tag, unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
