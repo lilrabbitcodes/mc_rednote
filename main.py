@@ -3,6 +3,7 @@ import os
 import hashlib
 from gtts import gTTS
 from io import BytesIO
+import tempfile
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -144,7 +145,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation with temp file"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -159,6 +160,9 @@ def get_audio(text):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
+        # Create temp directory if it doesn't exist
+        temp_dir = tempfile.gettempdir()
+        
         # Generate audio
         if text in english_words:
             tts = gTTS(text=text, lang='en', slow=False)
@@ -168,13 +172,20 @@ def get_audio(text):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
+        # Save to temp file
+        temp_file = os.path.join(temp_dir, f'audio_{hash(text)}.mp3')
+        tts.save(temp_file)
+        
+        # Read the file
+        with open(temp_file, 'rb') as f:
+            audio_bytes = f.read()
+            
+        # Clean up
+        os.remove(temp_file)
         
         return audio_bytes
-    except:
+    except Exception as e:
+        st.error(f"Audio error: {str(e)}")
         return None
 
 # Flashcard data
@@ -447,7 +458,7 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - simplified implementation
+        # Audio with temp file implementation
         audio_data = get_audio(current_card["chinese"])
         if audio_data:
             st.audio(audio_data, format='audio/mp3')
