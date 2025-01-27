@@ -11,20 +11,46 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide ALL Streamlit elements
+# Hide ALL Streamlit elements completely
 st.markdown("""
     <style>
-        /* Hide ALL Streamlit elements */
-        footer {display: none !important;}
+        /* Aggressive hiding of all Streamlit elements */
+        footer {display: none !important; height: 0 !important; visibility: hidden !important; padding: 0 !important; margin: 0 !important; position: absolute !important; bottom: -9999px !important;}
         #MainMenu {display: none !important;}
         header {display: none !important;}
         .stDeployButton {display: none !important;}
         .viewerBadge_container__1QSob {display: none !important;}
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
-        .reportview-container .main footer {display: none !important;}
-        iframe[title="streamlit_footer"] {display: none !important;}
         
+        /* Super aggressive footer hiding */
+        div[data-testid="stFooter"], 
+        section[data-testid="stFooter"],
+        .stFooter,
+        .streamlit-footer,
+        .streamlit-footer-item,
+        iframe[title="streamlit_footer"] {
+            display: none !important;
+            height: 0 !important;
+            visibility: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            position: absolute !important;
+            bottom: -9999px !important;
+        }
+        
+        /* Container adjustments to remove footer space */
+        .main .block-container {
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+        }
+        
+        .stApp {
+            margin-bottom: -200px !important;  /* Force hide any remaining footer space */
+        }
+
         /* Additional footer hiding */
         .streamlit-footer {display: none !important;}
         .streamlit-footer-item {display: none !important;}
