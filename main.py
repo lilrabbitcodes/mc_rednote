@@ -11,25 +11,57 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide Streamlit footer and fullscreen button
+# Hide Streamlit elements and prevent scrolling
 st.markdown("""
     <style>
-        footer {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        .stDeployButton {display: none;}
-        .viewerBadge_container__1QSob {display: none;}
-        .viewerBadge_link__1QSob {display: none;}
-        button[title="View fullscreen"] {visibility: hidden;}
+        /* Hide Streamlit elements */
+        footer {display: none !important;}
+        #MainMenu {display: none !important;}
+        header {display: none !important;}
+        .stDeployButton {display: none !important;}
+        .viewerBadge_container__1QSob {display: none !important;}
+        .viewerBadge_link__1QSob {display: none !important;}
+        button[title="View fullscreen"] {display: none !important;}
         
-        /* Hide footer iframe */
-        iframe[title="streamlit_footer"] {
+        /* Prevent scrolling and make static */
+        .main {
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
+        
+        .stApp {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
+        
+        section[data-testid="stSidebar"] {
             display: none !important;
         }
         
-        /* Additional footer hiding */
-        .reportview-container .main footer {
-            visibility: hidden !important;
+        /* Mobile optimization */
+        .main-container {
+            max-height: 100vh !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            padding: 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+        }
+        
+        /* Hide scrollbars */
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+        * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
         }
     </style>
 """, unsafe_allow_html=True)
