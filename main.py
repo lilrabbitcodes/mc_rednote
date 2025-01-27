@@ -1,12 +1,26 @@
 import streamlit as st
 import os
 import hashlib
-from gtts import gTTS
-from io import BytesIO
-import base64
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
+
+# At the top of the file, add more detailed error handling
+try:
+    from gtts import gTTS
+    AUDIO_ENABLED = True
+except ImportError as e:
+    AUDIO_ENABLED = False
+    st.error(f"Detailed error: {str(e)}")
+    st.warning("Audio functionality is not available. Installing required packages...")
+    try:
+        import subprocess
+        subprocess.check_call(["pip", "install", "gTTS==2.5.0", "click>=7.0"])
+        from gtts import gTTS
+        AUDIO_ENABLED = True
+        st.success("Successfully installed audio packages!")
+    except Exception as e:
+        st.error(f"Failed to install packages: {str(e)}")
 
 # CSS styles
 st.markdown("""
@@ -64,43 +78,32 @@ st.markdown("""
 }
 
 /* Audio player styling */
-div.stAudio {
+.stAudio {
+    width: 50% !important;
+    margin: 5px auto !important;
     display: flex !important;
     justify-content: center !important;
-    align-items: center !important;
-    margin: 10px auto !important;
-    width: 100% !important;
 }
 
-div.stAudio > audio {
-    width: 50px !important;
+.stAudio > audio {
+    width: 90px !important;
     height: 30px !important;
-    margin: 0 auto !important;
 }
 
 audio::-webkit-media-controls-panel {
-    background-color: #666666 !important;
+    background-color: #666666 !important;  /* Darker grey */
 }
 
 audio::-webkit-media-controls-play-button {
     transform: scale(1.2) !important;
-    margin: 0 4px !important;
+    margin: 0 8px !important;
     color: white !important;
 }
 
 audio::-webkit-media-controls-current-time-display,
-audio::-webkit-media-controls-time-remaining-display,
-audio::-webkit-media-controls-timeline {
-    display: none !important;
-}
-
-/* Center all content */
-.main-container {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 10px !important;
+audio::-webkit-media-controls-time-remaining-display {
+    color: white !important;
+    font-size: 12px !important;
 }
 
 /* Center column content */
@@ -137,6 +140,53 @@ audio::-webkit-media-controls-timeline {
 }
 </style>
 """, unsafe_allow_html=True)
+
+def generate_audio(text):
+    """Generate audio for the given text in Mandarin character by character"""
+    if not AUDIO_ENABLED:
+        return None
+        
+    try:
+        # Special cases mapping
+        special_cases = {
+            "HHHH": "哈哈哈哈",
+            "666": "六六六",
+            "88": "八八",
+            "3Q": "三Q",
+            "WC": "哇草",
+            "SB": "傻逼",
+        }
+        
+        # Words to pronounce in English
+        english_words = ["Vlog", "Flag", "Crush", "Emo"]
+        
+        try:
+            # Check if it's an English word
+            if text in english_words:
+                tts = gTTS(text=text, lang='en', slow=False)
+            elif text == "city不city":
+                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+            else:
+                text_to_speak = special_cases.get(text, text)
+                characters = list(text_to_speak)
+                spaced_text = ' '.join(characters)
+                tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
+
+            # Generate audio in memory
+            from io import BytesIO
+            audio_bytes = BytesIO()
+            tts.write_to_fp(audio_bytes)
+            audio_bytes.seek(0)
+            
+            return audio_bytes
+            
+        except Exception as e:
+            st.warning(f"Could not generate audio for: {text}")
+            return None
+            
+    except Exception as e:
+        st.warning("Audio temporarily unavailable")
+        return None
 
 # Flashcard data
 flashcards = [
@@ -376,40 +426,6 @@ flashcards = [
     }
 ]
 
-def get_audio(text):
-    """Simple audio generation"""
-    try:
-        # Special cases for pronunciation
-        special_cases = {
-            "HHHH": "哈哈哈哈",
-            "666": "六六六",
-            "88": "八八",
-            "3Q": "三Q",
-            "WC": "哇草",
-            "SB": "傻逼",
-        }
-        
-        # English words to pronounce as-is
-        english_words = ["Vlog", "Flag", "Crush", "Emo"]
-        
-        # Generate audio
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-        elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-        else:
-            text_to_speak = special_cases.get(text, text)
-            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-            
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        
-        return audio_bytes
-    except:
-        return None
-
 def main():
     # Initialize session state
     if 'index' not in st.session_state:
@@ -417,6 +433,37 @@ def main():
 
     # Create a container with fixed height for mobile optimization
     with st.container():
+        st.markdown("""
+            <style>
+            /* Mobile optimization */
+            .main-container {
+                max-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 10px;
+            }
+            
+            /* Adjust image container */
+            .image-container {
+                flex: 0 0 auto;
+                margin-bottom: 10px;
+            }
+            
+            /* Text content */
+            .text-content {
+                flex: 0 0 auto;
+                margin: 10px 0;
+            }
+            
+            /* Button container */
+            .button-container {
+                flex: 0 0 auto;
+                margin-top: 10px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
         # Get current flashcard
         current_card = flashcards[st.session_state.index]
         
@@ -442,10 +489,14 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio - simplified implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # Audio with better error handling
+        if AUDIO_ENABLED:
+            try:
+                audio_data = generate_audio(current_card["chinese"])
+                if audio_data:
+                    st.audio(audio_data, format='audio/mp3')
+            except:
+                st.warning("Audio player unavailable")
         
         # Next button
         st.markdown("""
