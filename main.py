@@ -1,10 +1,17 @@
 import streamlit as st
 import os
 import hashlib
-from gtts import gTTS
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
+
+# Try importing gTTS with error handling
+try:
+    from gtts import gTTS
+    AUDIO_ENABLED = True
+except ImportError:
+    AUDIO_ENABLED = False
+    st.warning("Audio functionality is not available. Please check gTTS installation.")
 
 # CSS styles
 st.markdown("""
@@ -69,18 +76,21 @@ audio::-webkit-media-controls-play-button {
 
 def generate_audio(text):
     """Generate audio for the given text in Mandarin"""
-    os.makedirs("audio_cache", exist_ok=True)
-    audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
-    
-    if not os.path.exists(audio_path):
-        try:
+    if not AUDIO_ENABLED:
+        return None
+        
+    try:
+        os.makedirs("audio_cache", exist_ok=True)
+        audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
+        
+        if not os.path.exists(audio_path):
             tts = gTTS(text=text, lang='zh-cn', slow=False)
             tts.save(audio_path)
-        except Exception as e:
-            st.error(f"Error generating audio: {str(e)}")
-            return None
-    
-    return audio_path
+        
+        return audio_path
+    except Exception as e:
+        st.error(f"Error generating audio: {str(e)}")
+        return None
 
 # Flashcard data
 flashcards = [
@@ -122,10 +132,11 @@ def main():
         <div class="explanation">{current_card['english']}</div>
     """, unsafe_allow_html=True)
     
-    # Generate and display audio
-    audio_path = generate_audio(current_card["chinese"])
-    if audio_path and os.path.exists(audio_path):
-        st.audio(audio_path, format='audio/mp3')
+    # Generate and display audio only if enabled
+    if AUDIO_ENABLED:
+        audio_path = generate_audio(current_card["chinese"])
+        if audio_path and os.path.exists(audio_path):
+            st.audio(audio_path, format='audio/mp3')
     
     # Next button
     col1, col2, col3 = st.columns([1,2,1])
