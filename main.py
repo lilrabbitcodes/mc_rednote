@@ -1,9 +1,147 @@
 import streamlit as st
+import os
+import hashlib
 from gtts import gTTS
 from io import BytesIO
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
+
+# At the top of the file, add more detailed error handling
+try:
+    from gtts import gTTS
+    AUDIO_ENABLED = True
+except ImportError as e:
+    AUDIO_ENABLED = False
+    st.error(f"Detailed error: {str(e)}")
+    st.warning("Audio functionality is not available. Installing required packages...")
+    try:
+        import subprocess
+        subprocess.check_call(["pip", "install", "gTTS==2.5.0", "click>=7.0"])
+        from gtts import gTTS
+        AUDIO_ENABLED = True
+        st.success("Successfully installed audio packages!")
+    except Exception as e:
+        st.error(f"Failed to install packages: {str(e)}")
+
+# CSS styles
+st.markdown("""
+<style>
+.stApp {
+    background-color: white !important;
+    padding: 5px 10px !important;
+    color: black !important;
+}
+
+.character {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 10px 0;
+    text-align: center;
+    color: black !important;
+}
+
+.pinyin {
+    font-size: 18px;
+    color: #666;
+    margin: 5px 0;
+    text-align: center;
+}
+
+.explanation {
+    font-size: 16px;
+    margin: 10px 0;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: black !important;
+}
+
+/* Button styling */
+.stButton {
+    text-align: center !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.stButton > button {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+    border-radius: 5px !important;
+    padding: 5px 15px !important;
+    font-weight: 500 !important;
+    margin: 0 auto !important;
+}
+
+.stButton > button:hover {
+    background-color: #f0f0f0 !important;
+    border-color: black !important;
+}
+
+/* Audio player styling */
+.stAudio {
+    width: 50% !important;
+    margin: 5px auto !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.stAudio > audio {
+    width: 90px !important;
+    height: 30px !important;
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: #666666 !important;  /* Darker grey */
+}
+
+audio::-webkit-media-controls-play-button {
+    transform: scale(1.2) !important;
+    margin: 0 8px !important;
+    color: white !important;
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+    color: white !important;
+    font-size: 12px !important;
+}
+
+/* Center column content */
+[data-testid="column"] {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* Mobile optimization */
+.main-container {
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+/* Adjust image container */
+.image-container {
+    flex: 0 0 auto;
+    margin-bottom: 10px;
+}
+
+/* Text content */
+.text-content {
+    flex: 0 0 auto;
+    margin: 10px 0;
+}
+
+/* Button container */
+.button-container {
+    flex: 0 0 auto;
+    margin-top: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 def get_audio(text):
     """Simple audio generation"""
