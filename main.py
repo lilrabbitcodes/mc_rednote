@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation"""
+    """Simple audio generation optimized for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -246,11 +246,18 @@ def get_audio(text):
         else:
             tts = gTTS(text=text, lang='zh-cn', slow=False)
             
-        # Save to BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        return audio_bytes.read()
+        # Create temporary file
+        temp_file = f"temp_{hash(text)}.mp3"
+        tts.save(temp_file)
+        
+        # Read file
+        with open(temp_file, 'rb') as f:
+            audio_data = f.read()
+            
+        # Clean up
+        os.remove(temp_file)
+        
+        return audio_data
     except:
         return None
 
@@ -524,11 +531,11 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
+        # Audio implementation with mobile optimization
         try:
             audio_data = get_audio(current_card["chinese"])
             if audio_data:
-                # Center the audio player
+                # Simple audio styling
                 st.markdown("""
                     <style>
                     div.stAudio {
@@ -537,11 +544,13 @@ def main():
                         margin: 10px auto !important;
                     }
                     div.stAudio > audio {
-                        min-width: 200px !important;
-                        height: 50px !important;
+                        width: 100px !important;
+                        height: 40px !important;
                     }
                     </style>
                 """, unsafe_allow_html=True)
+                
+                # Use a simple audio player
                 st.audio(audio_data, format='audio/mp3')
         except:
             pass
