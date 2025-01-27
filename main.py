@@ -141,13 +141,10 @@ audio::-webkit-media-controls-time-remaining-display {
 </style>
 """, unsafe_allow_html=True)
 
-def generate_audio(text):
-    """Generate audio for the given text in Mandarin character by character"""
-    if not AUDIO_ENABLED:
-        return None
-        
+def get_audio_url(text):
+    """Get audio URL for text-to-speech"""
     try:
-        # Special cases mapping
+        # Special cases for pronunciation
         special_cases = {
             "HHHH": "哈哈哈哈",
             "666": "六六六",
@@ -157,35 +154,25 @@ def generate_audio(text):
             "SB": "傻逼",
         }
         
-        # Words to pronounce in English
+        # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        try:
-            # Check if it's an English word
-            if text in english_words:
-                tts = gTTS(text=text, lang='en', slow=False)
-            elif text == "city不city":
-                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-            else:
-                text_to_speak = special_cases.get(text, text)
-                characters = list(text_to_speak)
-                spaced_text = ' '.join(characters)
-                tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
-
-            # Generate audio in memory
-            from io import BytesIO
-            audio_bytes = BytesIO()
-            tts.write_to_fp(audio_bytes)
-            audio_bytes.seek(0)
+        # Determine text and language
+        if text in english_words:
+            text_to_speak = text
+            lang = 'en'
+        elif text == "city不city":
+            text_to_speak = "city 不 city"
+            lang = 'zh-CN'
+        else:
+            text_to_speak = special_cases.get(text, text)
+            lang = 'zh-CN'
             
-            return audio_bytes
-            
-        except Exception as e:
-            st.warning(f"Could not generate audio for: {text}")
-            return None
-            
-    except Exception as e:
-        st.warning("Audio temporarily unavailable")
+        # Use Google Translate TTS (more reliable on mobile)
+        from urllib.parse import quote
+        encoded_text = quote(text_to_speak)
+        return f"https://translate.google.com/translate_tts?ie=UTF-8&q={encoded_text}&tl={lang}&client=tw-ob"
+    except:
         return None
 
 # Flashcard data
@@ -489,14 +476,48 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio with better error handling
-        if AUDIO_ENABLED:
-            try:
-                audio_data = generate_audio(current_card["chinese"])
-                if audio_data:
-                    st.audio(audio_data, format='audio/mp3')
-            except:
-                st.warning("Audio player unavailable")
+        # Custom audio player
+        audio_url = get_audio_url(current_card["chinese"])
+        if audio_url:
+            st.markdown(f"""
+                <style>
+                .custom-audio-player {{
+                    display: flex;
+                    justify-content: center;
+                    margin: 10px auto;
+                }}
+                .play-button {{
+                    width: 40px;
+                    height: 40px;
+                    background-color: #666666;
+                    border: none;
+                    border-radius: 50%;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                }}
+                .play-button:hover {{
+                    background-color: #777777;
+                }}
+                </style>
+                <div class="custom-audio-player">
+                    <button 
+                        class="play-button" 
+                        onclick="playAudio('{audio_url}')"
+                        aria-label="Play pronunciation"
+                    >
+                        ▶
+                    </button>
+                </div>
+                <script>
+                function playAudio(url) {{
+                    new Audio(url).play().catch(error => console.log('Audio playback failed'));
+                }}
+                </script>
+            """, unsafe_allow_html=True)
         
         # Next button
         st.markdown("""
