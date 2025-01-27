@@ -5,23 +5,6 @@ import hashlib
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# At the top of the file, add more detailed error handling
-try:
-    from gtts import gTTS
-    AUDIO_ENABLED = True
-except ImportError as e:
-    AUDIO_ENABLED = False
-    st.error(f"Detailed error: {str(e)}")
-    st.warning("Audio functionality is not available. Installing required packages...")
-    try:
-        import subprocess
-        subprocess.check_call(["pip", "install", "gTTS==2.5.0", "click>=7.0"])
-        from gtts import gTTS
-        AUDIO_ENABLED = True
-        st.success("Successfully installed audio packages!")
-    except Exception as e:
-        st.error(f"Failed to install packages: {str(e)}")
-
 # CSS styles
 st.markdown("""
 <style>
@@ -140,53 +123,6 @@ audio::-webkit-media-controls-time-remaining-display {
 }
 </style>
 """, unsafe_allow_html=True)
-
-def generate_audio(text):
-    """Generate audio for the given text in Mandarin character by character"""
-    if not AUDIO_ENABLED:
-        return None
-        
-    try:
-        # Special cases mapping
-        special_cases = {
-            "HHHH": "哈哈哈哈",
-            "666": "六六六",
-            "88": "八八",
-            "3Q": "三Q",
-            "WC": "哇草",
-            "SB": "傻逼",
-        }
-        
-        # Words to pronounce in English
-        english_words = ["Vlog", "Flag", "Crush", "Emo"]
-        
-        try:
-            # Check if it's an English word
-            if text in english_words:
-                tts = gTTS(text=text, lang='en', slow=False)
-            elif text == "city不city":
-                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-            else:
-                text_to_speak = special_cases.get(text, text)
-                characters = list(text_to_speak)
-                spaced_text = ' '.join(characters)
-                tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
-
-            # Generate audio in memory
-            from io import BytesIO
-            audio_bytes = BytesIO()
-            tts.write_to_fp(audio_bytes)
-            audio_bytes.seek(0)
-            
-            return audio_bytes
-            
-        except Exception as e:
-            st.warning(f"Could not generate audio for: {text}")
-            return None
-            
-    except Exception as e:
-        st.warning("Audio temporarily unavailable")
-        return None
 
 # Flashcard data
 flashcards = [
@@ -433,37 +369,6 @@ def main():
 
     # Create a container with fixed height for mobile optimization
     with st.container():
-        st.markdown("""
-            <style>
-            /* Mobile optimization */
-            .main-container {
-                max-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                padding: 10px;
-            }
-            
-            /* Adjust image container */
-            .image-container {
-                flex: 0 0 auto;
-                margin-bottom: 10px;
-            }
-            
-            /* Text content */
-            .text-content {
-                flex: 0 0 auto;
-                margin: 10px 0;
-            }
-            
-            /* Button container */
-            .button-container {
-                flex: 0 0 auto;
-                margin-top: 10px;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
         # Get current flashcard
         current_card = flashcards[st.session_state.index]
         
@@ -488,15 +393,6 @@ def main():
                 <div class="explanation">{current_card['english']}</div>
             </div>
         """, unsafe_allow_html=True)
-        
-        # Audio with better error handling
-        if AUDIO_ENABLED:
-            try:
-                audio_data = generate_audio(current_card["chinese"])
-                if audio_data:
-                    st.audio(audio_data, format='audio/mp3')
-            except:
-                st.warning("Audio player unavailable")
         
         # Next button
         st.markdown("""
