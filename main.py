@@ -586,9 +586,15 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation
-        audio_data = get_audio_url(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        try:
+            audio_data = get_audio(current_card["chinese"])
+            if audio_data:
+                # Center the audio player
+                col1, col2, col3 = st.columns([1,3,1])
+                with col2:
+                    st.audio(audio_data, format='audio/mp3')
+        except:
+            pass
         
         # Next button inside main container
         st.markdown("""
