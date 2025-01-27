@@ -160,27 +160,32 @@ def generate_audio(text):
         # Words to pronounce in English
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Generate audio directly in memory
-        if text in english_words:
-            tts = gTTS(text=text, lang='en', slow=False)
-        elif text == "city不city":
-            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
-        else:
-            text_to_speak = special_cases.get(text, text)
-            characters = list(text_to_speak)
-            spaced_text = ' '.join(characters)
-            tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
+        try:
+            # Check if it's an English word
+            if text in english_words:
+                tts = gTTS(text=text, lang='en', slow=False)
+            elif text == "city不city":
+                tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
+            else:
+                text_to_speak = special_cases.get(text, text)
+                characters = list(text_to_speak)
+                spaced_text = ' '.join(characters)
+                tts = gTTS(text=spaced_text, lang='zh-cn', slow=False)
 
-        # Use BytesIO instead of file
-        from io import BytesIO
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        
-        return audio_bytes
+            # Generate audio in memory
+            from io import BytesIO
+            audio_bytes = BytesIO()
+            tts.write_to_fp(audio_bytes)
+            audio_bytes.seek(0)
+            
+            return audio_bytes
+            
+        except Exception as e:
+            st.warning(f"Could not generate audio for: {text}")
+            return None
             
     except Exception as e:
-        st.error(f"Error generating audio: {str(e)}")
+        st.warning("Audio temporarily unavailable")
         return None
 
 # Flashcard data
@@ -484,11 +489,14 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio
+        # Audio with better error handling
         if AUDIO_ENABLED:
-            audio_data = generate_audio(current_card["chinese"])
-            if audio_data:
-                st.audio(audio_data, format='audio/mp3')
+            try:
+                audio_data = generate_audio(current_card["chinese"])
+                if audio_data:
+                    st.audio(audio_data, format='audio/mp3')
+            except:
+                st.warning("Audio player unavailable")
         
         # Next button
         st.markdown("""
