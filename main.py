@@ -73,7 +73,7 @@ div.stAudio {
 }
 
 div.stAudio > audio {
-    width: 90px !important;
+    width: 50px !important;
     height: 30px !important;
     margin: 0 auto !important;
 }
@@ -84,14 +84,14 @@ audio::-webkit-media-controls-panel {
 
 audio::-webkit-media-controls-play-button {
     transform: scale(1.2) !important;
-    margin: 0 8px !important;
+    margin: 0 4px !important;
     color: white !important;
 }
 
 audio::-webkit-media-controls-current-time-display,
-audio::-webkit-media-controls-time-remaining-display {
-    color: white !important;
-    font-size: 12px !important;
+audio::-webkit-media-controls-time-remaining-display,
+audio::-webkit-media-controls-timeline {
+    display: none !important;
 }
 
 /* Center all content */
