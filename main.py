@@ -157,6 +157,11 @@ def generate_audio(text):
             "3Q": "三Q",          # Special case for 3Q
             "WC": "哇草",         # Convert WC to actual pronunciation
             "SB": "傻逼",         # Convert SB to actual characters
+            "Vlog": "视频博客",    # Full word pronunciation
+            "Flag": "立flag",     # Full word pronunciation
+            "Crush": "暗恋",      # Full word pronunciation
+            "city不city": "城市不城市",  # Full word pronunciation
+            "Emo": "伤心",        # Full word pronunciation
         }
         
         # Check if text is a special case
