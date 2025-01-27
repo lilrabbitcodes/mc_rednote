@@ -11,11 +11,11 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide ALL Streamlit elements completely
+# Hide Streamlit elements and make static
 st.markdown("""
     <style>
-        /* Aggressive hiding of all Streamlit elements */
-        footer {all: unset !important; display: none !important; height: 0 !important; visibility: hidden !important; padding: 0 !important; margin: 0 !important; position: absolute !important; bottom: -9999px !important;}
+        /* Hide Streamlit elements */
+        footer {display: none !important;}
         #MainMenu {display: none !important;}
         header {display: none !important;}
         .stDeployButton {display: none !important;}
@@ -23,121 +23,18 @@ st.markdown("""
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
         
-        /* Super aggressive footer hiding for all contexts */
-        div[data-testid="stFooter"], 
-        section[data-testid="stFooter"],
-        .stFooter,
-        .streamlit-footer,
-        .streamlit-footer-item,
-        iframe[title="streamlit_footer"],
-        .stMarkdown footer,
-        footer[data-testid="stFooter"] {
-            all: unset !important;
-            display: none !important;
-            height: 0 !important;
-            visibility: hidden !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            position: absolute !important;
-            bottom: -9999px !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        
-        /* Mobile and embedded specific hiding */
-        @media screen and (max-width: 1000px) {
-            footer, .stFooter, div[data-testid="stFooter"] {
-                display: none !important;
-                height: 0 !important;
-                visibility: hidden !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                position: fixed !important;
-                bottom: -9999px !important;
-                opacity: 0 !important;
-                z-index: -9999 !important;
-            }
-            
-            .main .block-container {
-                padding-bottom: 0 !important;
-                margin-bottom: 0 !important;
-                min-height: 0 !important;
-            }
-            
-            .stApp {
-                margin-bottom: -500px !important;
-                height: auto !important;
-                overflow: hidden !important;
-            }
-        }
-        
-        /* Container adjustments to remove footer space */
-        .main .block-container {
-            padding-bottom: 0 !important;
-            margin-bottom: 0 !important;
-            max-height: 100vh !important;
-            overflow: hidden !important;
-        }
-        
+        /* Make app static */
         .stApp {
-            margin-bottom: -200px !important;  /* Force hide any remaining footer space */
-        }
-
-        /* Additional footer hiding */
-        .streamlit-footer {display: none !important;}
-        .streamlit-footer-item {display: none !important;}
-        div[data-testid="stFooter"] {display: none !important;}
-        section[data-testid="stFooter"] {display: none !important;}
-        
-        /* Hide any remaining Streamlit branding */
-        .stApp footer {display: none !important;}
-        .stApp [data-testid="stFooter"] {display: none !important;}
-        .stApp [data-testid="stToolbar"] {display: none !important;}
-        
-        /* Force hide footer on mobile */
-        @media (max-width: 768px) {
-            footer {height: 0px !important; min-height: 0px !important; display: none !important;}
-            .stApp [data-testid="stFooter"] {height: 0px !important; min-height: 0px !important; display: none !important;}
-            .stApp [data-testid="stToolbar"] {height: 0px !important; min-height: 0px !important; display: none !important;}
-            iframe[title="streamlit_footer"] {height: 0px !important; min-height: 0px !important; display: none !important;}
-            section[data-testid="stFooter"] {height: 0px !important; min-height: 0px !important; display: none !important;}
-        }
-        
-        /* Prevent any space for footer */
-        .main .block-container {
-            padding-bottom: 0px !important;
-            margin-bottom: 0px !important;
-        }
-        
-        /* Audio player centering */
-        div.stAudio {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+            position: fixed !important;
             width: 100% !important;
-            margin: 10px auto !important;
         }
         
-        div.stAudio > audio {
-            width: 120px !important;
-            height: 35px !important;
-            margin: 0 auto !important;
-        }
-        
-        /* Center audio on mobile */
-        @media (max-width: 640px) {
-            div.stAudio {
-                padding: 0 !important;
-            }
-            div.stAudio > audio {
-                margin: 0 auto !important;
-            }
-        }
-
-        /* Container */
         .main .block-container {
+            height: 100vh !important;
+            overflow: hidden !important;
             padding: 1rem !important;
-            max-width: 100% !important;
         }
         
         /* Main container */
@@ -146,26 +43,21 @@ st.markdown("""
             flex-direction: column !important;
             align-items: center !important;
             gap: 10px !important;
-            padding: 10px !important;
+            height: calc(100vh - 2rem) !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            width: calc(100% - 2rem) !important;
         }
         
-        /* Image sizing and centering */
+        /* Image sizing */
         .element-container img {
             max-height: 35vh !important;
             width: auto !important;
             object-fit: contain !important;
             margin: 0 auto !important;
-            border-radius: 10px !important;
-            display: block !important;
         }
         
-        .element-container {
-            display: flex !important;
-            justify-content: center !important;
-            width: 100% !important;
-        }
-        
-        /* Text content */
+        /* Content spacing */
         .character {
             font-size: 42px !important;
             font-weight: bold !important;
@@ -188,6 +80,18 @@ st.markdown("""
             padding: 0 15px !important;
         }
         
+        /* Audio player */
+        div.stAudio {
+            display: flex !important;
+            justify-content: center !important;
+            margin: 5px auto !important;
+        }
+        
+        div.stAudio > audio {
+            width: 100px !important;
+            height: 35px !important;
+        }
+        
         /* Button styling */
         .stButton {
             display: flex !important;
@@ -199,19 +103,12 @@ st.markdown("""
             width: 120px !important;
         }
         
-        /* Image centering */
-        [data-testid="stImage"] {
-            display: flex !important;
-            justify-content: center !important;
-        }
-        
-        [data-testid="stImage"] > img {
-            max-height: 35vh !important;
-            width: auto !important;
-            max-width: 90% !important;
-            object-fit: contain !important;
-            border-radius: 10px !important;
-            margin: 0 auto !important;
+        /* Prevent scrolling */
+        body {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -485,31 +382,31 @@ flashcards = [
         "chinese": "牛马",
         "pinyin": "niú mǎ",
         "english": "Overworked employees, treated like animals",
-        "meme_url": "https://i.imgur.com/TWVsq0o.png"
+        "meme_url": "https://i.imgur.com/TWVsq0o.png"  # Image of overworked employee
     },
     {
         "chinese": "摸鱼",
         "pinyin": "mō yú",
         "english": "Slacking off, quiet quitting",
-        "meme_url": "https://i.imgur.com/sRUAKan.png"
+        "meme_url": "https://i.imgur.com/sRUAKan.png"  # Image of slacking off
     },
     {
         "chinese": "一身班味",
         "pinyin": "yī shēn bān wèi",
         "english": "Lingering exhaustion after work",
-        "meme_url": "https://i.imgur.com/XAUp83k.png"
+        "meme_url": "https://i.imgur.com/XAUp83k.png"  # Image showing exhaustion
     },
     {
         "chinese": "班味",
         "pinyin": "bān wèi",
         "english": "Corporate fatigue, loss of energy",
-        "meme_url": "https://i.imgur.com/XAUp83k.png"
+        "meme_url": "https://i.imgur.com/XAUp83k.png"  # Image showing fatigue
     },
     {
         "chinese": "灵活就业",
         "pinyin": "líng huó jiù yè",
         "english": "Unemployed but pretending it's a choice",
-        "meme_url": "https://i.imgur.com/sKSPQTs.png"
+        "meme_url": "https://i.imgur.com/sKSPQTs.png"  # Image of flexible employment
     },
     {
         "chinese": "Crush",
@@ -766,6 +663,18 @@ def main():
         
         # Close main container
         st.markdown("</div>", unsafe_allow_html=True)
+
+    # Add this at the start of main()
+    st.markdown("""
+        <script>
+            // Prevent scrolling
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        </script>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
