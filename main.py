@@ -429,13 +429,43 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio using direct URL
+        # Audio using direct URL with centered styling
         audio_url = get_audio_url(current_card["chinese"])
         if audio_url:
-            st.markdown(f"""
-                <audio controls style="height:30px;width:40px">
-                    <source src="{audio_url}" type="audio/mp3">
-                </audio>
+            st.markdown("""
+                <style>
+                .audio-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 10px auto;
+                }
+                .audio-container audio {
+                    width: 35px;
+                    height: 35px;
+                    background-color: #666666;
+                    border-radius: 50%;
+                }
+                /* Make play button more clickable */
+                .audio-container audio::-webkit-media-controls-play-button {
+                    transform: scale(1.5);
+                    margin: 0;
+                    padding: 5px;
+                }
+                /* Hide timeline and other controls */
+                .audio-container audio::-webkit-media-controls-timeline,
+                .audio-container audio::-webkit-media-controls-current-time-display,
+                .audio-container audio::-webkit-media-controls-time-remaining-display,
+                .audio-container audio::-webkit-media-controls-volume-slider,
+                .audio-container audio::-webkit-media-controls-mute-button {
+                    display: none;
+                }
+                </style>
+                <div class="audio-container">
+                    <audio controls>
+                        <source src="{audio_url}" type="audio/mp3">
+                    </audio>
+                </div>
             """, unsafe_allow_html=True)
         
         # Next button
