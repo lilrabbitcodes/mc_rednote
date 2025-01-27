@@ -499,37 +499,6 @@ def main():
 
     # Create a container with fixed height for mobile optimization
     with st.container():
-        st.markdown("""
-            <style>
-            /* Mobile optimization */
-            .main-container {
-                max-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                padding: 10px;
-            }
-            
-            /* Adjust image container */
-            .image-container {
-                flex: 0 0 auto;
-                margin-bottom: 10px;
-            }
-            
-            /* Text content */
-            .text-content {
-                flex: 0 0 auto;
-                margin: 10px 0;
-            }
-            
-            /* Button container */
-            .button-container {
-                flex: 0 0 auto;
-                margin-top: 10px;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
         # Get current flashcard
         current_card = flashcards[st.session_state.index]
         
@@ -552,8 +521,8 @@ def main():
                 <div class="character">{current_card['chinese']}</div>
                 <div class="pinyin">{current_card['pinyin']}</div>
                 <div class="explanation">{current_card['english']}</div>
-                </div>
-            """, unsafe_allow_html=True)
+            </div>
+        """, unsafe_allow_html=True)
         
         # Audio implementation with mobile support
         if 'last_index' not in st.session_state:
@@ -566,7 +535,7 @@ def main():
             if audio_data:
                 st.audio(audio_data, format='audio/mp3')
         
-        # Next button
+        # Next button inside main container
         st.markdown("""
             <div class="button-container">
         """, unsafe_allow_html=True)
@@ -575,6 +544,7 @@ def main():
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
         
+        # Close main container
         st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
