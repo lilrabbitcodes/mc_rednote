@@ -249,13 +249,14 @@ def get_audio(text, card_index):
         # Generate audio
         tts = gTTS(text=text_to_speak, lang=lang, slow=False)
         
-        # Save to BytesIO
+        # Save to BytesIO and get bytes
         audio_bytes = BytesIO()
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
+        return audio_bytes.read()  # Return bytes instead of BytesIO object
         
-        return audio_bytes
-    except:
+    except Exception as e:
+        st.error(f"Audio error: {str(e)}")
         return None
 
 # Flashcard data
@@ -559,12 +560,15 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio implementation
-        audio_data = get_audio(current_card["chinese"], st.session_state.index)
-        if audio_data:
-            # Create a unique key for each audio component
-            unique_key = f"audio_{st.session_state.index}_{current_card['chinese']}"
-            st.audio(audio_data, format='audio/mp3', key=unique_key)
+        # Audio implementation with error handling
+        try:
+            audio_data = get_audio(current_card["chinese"], st.session_state.index)
+            if audio_data:
+                # Create a unique key for each audio component
+                unique_key = f"audio_{st.session_state.index}_{current_card['chinese']}"
+                st.audio(audio_data, format='audio/mp3', key=unique_key)
+        except Exception as e:
+            st.error(f"Failed to play audio: {str(e)}")
         
         # Next button
         st.markdown("""
