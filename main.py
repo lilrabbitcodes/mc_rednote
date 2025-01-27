@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation optimized for mobile"""
+    """Simple audio generation"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -236,34 +236,21 @@ def get_audio(text):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Determine text and language
+        # Generate audio
         if text in english_words:
-            text_to_speak = text
-            lang = 'en'
+            tts = gTTS(text=text, lang='en', slow=False)
         elif text == "city不city":
-            text_to_speak = "city 不 city"
-            lang = 'zh-cn'
+            tts = gTTS(text="city 不 city", lang='zh-cn', slow=False)
         else:
             text_to_speak = special_cases.get(text, text)
-            lang = 'zh-cn'
-
-        # Create temporary file with unique name
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
-            # Generate and save audio
-            tts = gTTS(text=text_to_speak, lang=lang, slow=False)
-            tts.save(fp.name)
+            tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-            # Read the file
-            with open(fp.name, 'rb') as audio_file:
-                audio_bytes = audio_file.read()
-            
-            # Clean up
-            os.unlink(fp.name)
-            
-            return audio_bytes
-            
-    except Exception as e:
-        st.error(f"Audio error: {str(e)}")
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        return audio_bytes.read()
+    except:
         return None
 
 # Flashcard data
@@ -567,15 +554,10 @@ def main():
                 </div>
             """, unsafe_allow_html=True)
         
-        # Audio implementation with mobile optimization
-        col1, col2, col3 = st.columns([1,2,1])
-        with col2:
-            try:
-                audio_data = get_audio(current_card["chinese"])
-                if audio_data:
-                    st.audio(audio_data, format='audio/mp3')
-            except Exception as e:
-                st.error("Audio unavailable")
+        # Audio implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
