@@ -1,4 +1,7 @@
 import streamlit as st
+import os
+import hashlib
+from gtts import gTTS
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -9,6 +12,7 @@ st.markdown("""
 .stApp {
     background-color: white !important;
     padding: 5px 10px !important;
+    color: black !important;
 }
 
 .character {
@@ -16,6 +20,7 @@ st.markdown("""
     font-weight: bold;
     margin: 10px 0;
     text-align: center;
+    color: black !important;
 }
 
 .pinyin {
@@ -31,13 +36,51 @@ st.markdown("""
     text-align: center;
     text-transform: uppercase;
     font-weight: bold;
+    color: black !important;
 }
 
 .stButton {
     text-align: center;
 }
+
+/* Audio player styling */
+.stAudio {
+    width: 100% !important;
+    margin: 5px auto !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.stAudio > audio {
+    width: 200px !important;
+    height: 40px !important;
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: #f0f2f6 !important;
+}
+
+audio::-webkit-media-controls-play-button {
+    transform: scale(1.5) !important;
+    margin: 0 10px !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
+def generate_audio(text):
+    """Generate audio for the given text in Mandarin"""
+    os.makedirs("audio_cache", exist_ok=True)
+    audio_path = f"audio_cache/{hashlib.md5(text.encode()).hexdigest()}.mp3"
+    
+    if not os.path.exists(audio_path):
+        try:
+            tts = gTTS(text=text, lang='zh-cn', slow=False)
+            tts.save(audio_path)
+        except Exception as e:
+            st.error(f"Error generating audio: {str(e)}")
+            return None
+    
+    return audio_path
 
 # Flashcard data
 flashcards = [
@@ -78,6 +121,11 @@ def main():
         <div class="pinyin">{current_card['pinyin']}</div>
         <div class="explanation">{current_card['english']}</div>
     """, unsafe_allow_html=True)
+    
+    # Generate and display audio
+    audio_path = generate_audio(current_card["chinese"])
+    if audio_path and os.path.exists(audio_path):
+        st.audio(audio_path, format='audio/mp3')
     
     # Next button
     col1, col2, col3 = st.columns([1,2,1])
