@@ -64,20 +64,22 @@ st.markdown("""
 }
 
 /* Audio player styling */
-.stAudio {
-    width: 50% !important;
-    margin: 5px auto !important;
+div.stAudio {
     display: flex !important;
     justify-content: center !important;
+    align-items: center !important;
+    margin: 10px auto !important;
+    width: 100% !important;
 }
 
-.stAudio > audio {
+div.stAudio > audio {
     width: 90px !important;
     height: 30px !important;
+    margin: 0 auto !important;
 }
 
 audio::-webkit-media-controls-panel {
-    background-color: #666666 !important;  /* Darker grey */
+    background-color: #666666 !important;
 }
 
 audio::-webkit-media-controls-play-button {
@@ -90,6 +92,15 @@ audio::-webkit-media-controls-current-time-display,
 audio::-webkit-media-controls-time-remaining-display {
     color: white !important;
     font-size: 12px !important;
+}
+
+/* Center all content */
+.main-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px !important;
 }
 
 /* Center column content */
@@ -366,7 +377,7 @@ flashcards = [
 ]
 
 def get_audio(text):
-    """Simple audio generation with better error handling"""
+    """Simple audio generation"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -381,9 +392,6 @@ def get_audio(text):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Create a unique filename for each text
-        filename = f"temp_{hash(text)}.mp3"
-        
         # Generate audio
         if text in english_words:
             tts = gTTS(text=text, lang='en', slow=False)
@@ -393,23 +401,13 @@ def get_audio(text):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-        # Save to temporary file
-        tts.save(filename)
+        # Save to BytesIO
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
         
-        # Read the file and encode to base64
-        with open(filename, "rb") as f:
-            audio_bytes = f.read()
-        
-        # Clean up the temporary file
-        os.remove(filename)
-        
-        # Create audio HTML
-        audio_base64 = base64.b64encode(audio_bytes).decode()
-        audio_tag = f'<audio controls><source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3"></audio>'
-        
-        return audio_tag
-    except Exception as e:
-        st.error(f"Audio error: {str(e)}")
+        return audio_bytes
+    except:
         return None
 
 def main():
@@ -444,10 +442,10 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio with HTML5 player
-        audio_tag = get_audio(current_card["chinese"])
-        if audio_tag:
-            st.markdown(audio_tag, unsafe_allow_html=True)
+        # Audio - simplified implementation
+        audio_data = get_audio(current_card["chinese"])
+        if audio_data:
+            st.audio(audio_data, format='audio/mp3')
         
         # Next button
         st.markdown("""
