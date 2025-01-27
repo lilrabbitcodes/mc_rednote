@@ -145,7 +145,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation with temp file"""
+    """Simple audio generation"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -160,9 +160,6 @@ def get_audio(text):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Create temp directory if it doesn't exist
-        temp_dir = tempfile.gettempdir()
-        
         # Generate audio
         if text in english_words:
             tts = gTTS(text=text, lang='en', slow=False)
@@ -172,20 +169,8 @@ def get_audio(text):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
             
-        # Save to temp file
-        temp_file = os.path.join(temp_dir, f'audio_{hash(text)}.mp3')
-        tts.save(temp_file)
-        
-        # Read the file
-        with open(temp_file, 'rb') as f:
-            audio_bytes = f.read()
-            
-        # Clean up
-        os.remove(temp_file)
-        
-        return audio_bytes
-    except Exception as e:
-        st.error(f"Audio error: {str(e)}")
+        return tts
+    except:
         return None
 
 # Flashcard data
@@ -458,10 +443,13 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio with temp file implementation
-        audio_data = get_audio(current_card["chinese"])
-        if audio_data:
-            st.audio(audio_data, format='audio/mp3')
+        # Audio implementation
+        tts = get_audio(current_card["chinese"])
+        if tts:
+            try:
+                st.audio(tts.get_urls()[0])  # Get the direct URL from gTTS
+            except:
+                pass  # Silently fail if audio doesn't work
         
         # Next button
         st.markdown("""
