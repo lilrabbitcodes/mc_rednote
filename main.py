@@ -141,6 +141,80 @@ audio::-webkit-media-controls-time-remaining-display {
     flex: 0 0 auto;
     margin-top: 10px;
 }
+
+/* Audio container styling */
+.audio-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 15px auto !important;
+}
+
+.audio-container audio {
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50% !important;
+    background-color: #666666 !important;
+}
+
+/* Hide audio controls except play button */
+.audio-container audio::-webkit-media-controls-panel {
+    background-color: #666666 !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.audio-container audio::-webkit-media-controls-play-button {
+    transform: scale(1.2) !important;
+    margin: 0 !important;
+}
+
+.audio-container audio::-webkit-media-controls-timeline,
+.audio-container audio::-webkit-media-controls-current-time-display,
+.audio-container audio::-webkit-media-controls-time-remaining-display,
+.audio-container audio::-webkit-media-controls-volume-slider,
+.audio-container audio::-webkit-media-controls-mute-button {
+    display: none !important;
+}
+
+/* Center all content */
+.main-container {
+    max-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px !important;
+    text-align: center !important;
+}
+
+.text-content {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    margin: 10px 0 !important;
+}
+
+.character, .pinyin, .explanation {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+.image-container {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-bottom: 15px !important;
+}
+
+.button-container {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 15px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -183,9 +257,11 @@ def get_audio(text):
         
         # Create HTML5 audio element
         audio_html = f'''
-            <audio controls style="height:30px;width:40px">
-                <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
-            </audio>
+            <div class="audio-container">
+                <audio controls style="height:35px;width:35px">
+                    <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+                </audio>
+            </div>
         '''
         return audio_html
     except:
