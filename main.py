@@ -15,7 +15,7 @@ st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 st.markdown("""
     <style>
         /* Aggressive hiding of all Streamlit elements */
-        footer {display: none !important; height: 0 !important; visibility: hidden !important; padding: 0 !important; margin: 0 !important; position: absolute !important; bottom: -9999px !important;}
+        footer {all: unset !important; display: none !important; height: 0 !important; visibility: hidden !important; padding: 0 !important; margin: 0 !important; position: absolute !important; bottom: -9999px !important;}
         #MainMenu {display: none !important;}
         header {display: none !important;}
         .stDeployButton {display: none !important;}
@@ -23,13 +23,16 @@ st.markdown("""
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
         
-        /* Super aggressive footer hiding */
+        /* Super aggressive footer hiding for all contexts */
         div[data-testid="stFooter"], 
         section[data-testid="stFooter"],
         .stFooter,
         .streamlit-footer,
         .streamlit-footer-item,
-        iframe[title="streamlit_footer"] {
+        iframe[title="streamlit_footer"],
+        .stMarkdown footer,
+        footer[data-testid="stFooter"] {
+            all: unset !important;
             display: none !important;
             height: 0 !important;
             visibility: hidden !important;
@@ -37,6 +40,35 @@ st.markdown("""
             margin: 0 !important;
             position: absolute !important;
             bottom: -9999px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        
+        /* Mobile and embedded specific hiding */
+        @media screen and (max-width: 1000px) {
+            footer, .stFooter, div[data-testid="stFooter"] {
+                display: none !important;
+                height: 0 !important;
+                visibility: hidden !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                position: fixed !important;
+                bottom: -9999px !important;
+                opacity: 0 !important;
+                z-index: -9999 !important;
+            }
+            
+            .main .block-container {
+                padding-bottom: 0 !important;
+                margin-bottom: 0 !important;
+                min-height: 0 !important;
+            }
+            
+            .stApp {
+                margin-bottom: -500px !important;
+                height: auto !important;
+                overflow: hidden !important;
+            }
         }
         
         /* Container adjustments to remove footer space */
