@@ -149,13 +149,9 @@ audio::-webkit-media-controls-time-remaining-display {
 def get_audio_url(text):
     """Get pre-recorded audio URL"""
     try:
-        # Map text to Azure/AWS hosted audio files
-        audio_map = {
-            "牛马": "https://d1p7uxj2nxupcn.cloudfront.net/niuma.mp3",
-            "摸鱼": "https://d1p7uxj2nxupcn.cloudfront.net/moyu.mp3",
-            # ... add more mappings
-        }
-        return audio_map.get(text)
+        # Map text to audio URLs (using Google Translate TTS as a temporary solution)
+        text_encoded = quote(text)
+        return f"https://translate.google.com/translate_tts?ie=UTF-8&q={text_encoded}&tl=zh-CN&client=tw-ob"
     except:
         return None
 
@@ -429,43 +425,45 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio using direct URL with centered styling
+        # Audio using custom play button
         audio_url = get_audio_url(current_card["chinese"])
         if audio_url:
             st.markdown("""
                 <style>
-                .audio-container {
+                .audio-button {
+                    width: 40px;
+                    height: 40px;
+                    background-color: #666666;
+                    border-radius: 50%;
                     display: flex;
                     justify-content: center;
                     align-items: center;
+                    cursor: pointer;
                     margin: 10px auto;
+                    border: none;
                 }
-                .audio-container audio {
-                    width: 35px;
-                    height: 35px;
-                    background-color: #666666;
-                    border-radius: 50%;
+                .audio-button:hover {
+                    background-color: #777777;
                 }
-                /* Make play button more clickable */
-                .audio-container audio::-webkit-media-controls-play-button {
-                    transform: scale(1.5);
-                    margin: 0;
-                    padding: 5px;
-                }
-                /* Hide timeline and other controls */
-                .audio-container audio::-webkit-media-controls-timeline,
-                .audio-container audio::-webkit-media-controls-current-time-display,
-                .audio-container audio::-webkit-media-controls-time-remaining-display,
-                .audio-container audio::-webkit-media-controls-volume-slider,
-                .audio-container audio::-webkit-media-controls-mute-button {
-                    display: none;
+                .play-icon {
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 10px 0 10px 16px;
+                    border-color: transparent transparent transparent white;
+                    margin-left: 4px;
                 }
                 </style>
-                <div class="audio-container">
-                    <audio controls>
-                        <source src="{audio_url}" type="audio/mp3">
-                    </audio>
+                <div style="display:flex;justify-content:center;margin:10px 0;">
+                    <button class="audio-button" onclick="playAudio('{audio_url}')">
+                        <div class="play-icon"></div>
+                    </button>
                 </div>
+                <script>
+                function playAudio(url) {{
+                    new Audio(url).play();
+                }}
+                </script>
             """, unsafe_allow_html=True)
         
         # Next button
