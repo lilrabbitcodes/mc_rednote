@@ -5,6 +5,7 @@ from gtts import gTTS
 from io import BytesIO
 import base64
 import time
+import tempfile
 
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
@@ -28,7 +29,7 @@ except ImportError as e:
 
 # CSS styles
 st.markdown("""
-<style>
+    <style>
 .stApp {
     background-color: white !important;
     padding: 5px 10px !important;
@@ -79,9 +80,9 @@ st.markdown("""
 .stButton > button:hover {
     background-color: #f0f0f0 !important;
     border-color: black !important;
-}
-
-/* Audio player styling */
+        }
+        
+        /* Audio player styling */
 .stAudio {
     width: 50% !important;
     margin: 5px auto !important;
@@ -148,7 +149,7 @@ audio::-webkit-media-controls-time-remaining-display {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    width: 100% !important;
+            width: 100% !important;
     margin: 15px auto !important;
 }
 
@@ -168,9 +169,9 @@ audio::-webkit-media-controls-time-remaining-display {
 
 .audio-container audio::-webkit-media-controls-play-button {
     transform: scale(1.2) !important;
-    margin: 0 !important;
-}
-
+            margin: 0 !important;
+        }
+        
 .audio-container audio::-webkit-media-controls-timeline,
 .audio-container audio::-webkit-media-controls-current-time-display,
 .audio-container audio::-webkit-media-controls-time-remaining-display,
@@ -215,12 +216,12 @@ audio::-webkit-media-controls-time-remaining-display {
     display: flex !important;
     justify-content: center !important;
     margin-top: 15px !important;
-}
-</style>
+        }
+    </style>
 """, unsafe_allow_html=True)
 
-def get_audio(text, card_index):
-    """Simple audio generation with mobile support"""
+def get_audio(text):
+    """Simple audio generation optimized for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -235,7 +236,7 @@ def get_audio(text, card_index):
         # English words to pronounce as-is
         english_words = ["Vlog", "Flag", "Crush", "Emo"]
         
-        # Determine text to speak
+        # Determine text and language
         if text in english_words:
             text_to_speak = text
             lang = 'en'
@@ -245,16 +246,22 @@ def get_audio(text, card_index):
         else:
             text_to_speak = special_cases.get(text, text)
             lang = 'zh-cn'
+
+        # Create temporary file with unique name
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+            # Generate and save audio
+            tts = gTTS(text=text_to_speak, lang=lang, slow=False)
+            tts.save(fp.name)
             
-        # Generate audio
-        tts = gTTS(text=text_to_speak, lang=lang, slow=False)
-        
-        # Save to BytesIO and get bytes
-        audio_bytes = BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-        return audio_bytes.read()
-        
+            # Read the file
+            with open(fp.name, 'rb') as audio_file:
+                audio_bytes = audio_file.read()
+            
+            # Clean up
+            os.unlink(fp.name)
+            
+            return audio_bytes
+            
     except Exception as e:
         st.error(f"Audio error: {str(e)}")
         return None
@@ -557,16 +564,18 @@ def main():
                 <div class="character">{current_card['chinese']}</div>
                 <div class="pinyin">{current_card['pinyin']}</div>
                 <div class="explanation">{current_card['english']}</div>
-            </div>
-        """, unsafe_allow_html=True)
+                </div>
+            """, unsafe_allow_html=True)
         
-        # Audio implementation with error handling
-        try:
-            audio_data = get_audio(current_card["chinese"], st.session_state.index)
-            if audio_data:
-                st.audio(audio_data, format='audio/mp3')
-        except Exception as e:
-            st.error(f"Failed to play audio: {str(e)}")
+        # Audio implementation with mobile optimization
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            try:
+                audio_data = get_audio(current_card["chinese"])
+                if audio_data:
+                    st.audio(audio_data, format='audio/mp3')
+            except Exception as e:
+                st.error("Audio unavailable")
         
         # Next button
         st.markdown("""
