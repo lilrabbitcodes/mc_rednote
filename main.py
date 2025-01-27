@@ -218,7 +218,7 @@ audio::-webkit-media-controls-time-remaining-display {
 </style>
 """, unsafe_allow_html=True)
 
-def get_audio(text):
+def get_audio(text, card_index):
     """Simple audio generation with mobile support"""
     try:
         # Special cases for pronunciation
@@ -243,8 +243,8 @@ def get_audio(text):
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
 
-        # Save to temporary file
-        temp_file = f"temp_{hash(text)}.mp3"
+        # Save to temporary file with unique name for each card
+        temp_file = f"temp_{card_index}_{hash(text)}.mp3"
         tts.save(temp_file)
         
         # Read file and convert to base64
@@ -255,10 +255,10 @@ def get_audio(text):
         # Convert to base64
         audio_b64 = base64.b64encode(audio_bytes).decode()
         
-        # Create HTML5 audio element
+        # Create HTML5 audio element with unique ID
         audio_html = f'''
             <div class="audio-container">
-                <audio controls style="height:35px;width:35px">
+                <audio controls style="height:35px;width:35px" id="audio_{card_index}">
                     <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
                 </audio>
             </div>
@@ -569,7 +569,7 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio with HTML5 player
-        audio_html = get_audio(current_card["chinese"])
+        audio_html = get_audio(current_card["chinese"], st.session_state.index)
         if audio_html:
             st.markdown(audio_html, unsafe_allow_html=True)
         
