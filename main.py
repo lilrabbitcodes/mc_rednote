@@ -221,7 +221,7 @@ audio::-webkit-media-controls-time-remaining-display {
 """, unsafe_allow_html=True)
 
 def get_audio(text):
-    """Simple audio generation with mobile support"""
+    """Simple audio generation for mobile"""
     try:
         # Special cases for pronunciation
         special_cases = {
@@ -244,13 +244,15 @@ def get_audio(text):
         else:
             text_to_speak = special_cases.get(text, text)
             tts = gTTS(text=text_to_speak, lang='zh-cn', slow=False)
-
+            
         # Save to BytesIO
         audio_bytes = BytesIO()
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
         
-        return audio_bytes.read()
+        # Return the raw bytes
+        return audio_bytes
+
     except:
         return None
 
@@ -525,15 +527,15 @@ def main():
         """, unsafe_allow_html=True)
         
         # Audio implementation with mobile support
-        if 'last_index' not in st.session_state:
-            st.session_state.last_index = -1
-            
-        # Only regenerate audio if card changed
-        if st.session_state.last_index != st.session_state.index:
+        try:
             audio_data = get_audio(current_card["chinese"])
-            st.session_state.last_index = st.session_state.index
             if audio_data:
-                st.audio(audio_data, format='audio/mp3')
+                # Center the audio player
+                col1, col2, col3 = st.columns([1,2,1])
+                with col2:
+                    st.audio(audio_data, format='audio/mp3')
+        except:
+            pass  # Silently handle errors to avoid disrupting the UI
         
         # Next button inside main container
         st.markdown("""
