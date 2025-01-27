@@ -1,9 +1,9 @@
 import streamlit as st
 
-st.title("Chinese Meme Flashcards")
-st.write("Testing deployment...")
+# Basic page config
+st.set_page_config(page_title="Chinese Meme Flashcards")
 
-# Add just one flashcard to test
+# Test data
 flashcard = {
     "chinese": "牛马",
     "pinyin": "niú mǎ",
@@ -11,5 +11,17 @@ flashcard = {
     "meme_url": "https://i.imgur.com/TWVsq0o.png"
 }
 
+# Basic layout
+st.title("Chinese Meme Flashcards")
+
+# Display image
 st.image(flashcard["meme_url"])
-st.write(flashcard["chinese"])
+
+# Display text
+st.header(flashcard["chinese"])
+st.write(flashcard["pinyin"])
+st.write(flashcard["english"])
+
+# Test button
+if st.button("Test Button"):
+    st.write("Button clicked!")
