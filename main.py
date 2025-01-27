@@ -11,7 +11,7 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide Streamlit elements and prevent scrolling
+# Hide Streamlit elements and adjust layout
 st.markdown("""
     <style>
         /* Hide Streamlit elements */
@@ -23,7 +23,7 @@ st.markdown("""
         .viewerBadge_link__1QSob {display: none !important;}
         button[title="View fullscreen"] {display: none !important;}
         
-        /* Prevent scrolling and make static */
+        /* Static container */
         .main {
             overflow: hidden !important;
             height: 100vh !important;
@@ -36,25 +36,67 @@ st.markdown("""
             height: 100vh !important;
         }
         
-        section[data-testid="stSidebar"] {
-            display: none !important;
-        }
-        
-        /* Mobile optimization */
+        /* Layout adjustments */
         .main-container {
-            max-height: 100vh !important;
-            overflow: hidden !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            padding: 1rem !important;
             display: flex !important;
             flex-direction: column !important;
-            justify-content: space-between !important;
+            height: 100vh !important;
+            padding: 10px !important;
+            gap: 10px !important;
         }
-        
+
+        /* Controls at top */
+        .controls-container {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 5px 10px !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* Image container */
+        .image-container {
+            flex: 0 0 auto !important;
+            margin: 10px auto !important;
+        }
+
+        /* Text content spacing */
+        .text-content {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            margin: 10px 0 !important;
+        }
+
+        .character {
+            font-size: 42px !important;
+            font-weight: bold !important;
+            margin: 0 !important;
+        }
+
+        .pinyin {
+            font-size: 20px !important;
+            color: #666 !important;
+            margin: 0 !important;
+        }
+
+        .explanation {
+            font-size: 18px !important;
+            font-weight: 500 !important;
+            margin: 0 !important;
+            padding: 0 20px !important;
+        }
+
+        /* Audio player styling */
+        div.stAudio {
+            margin: 5px auto !important;
+        }
+
+        div.stAudio > audio {
+            width: 120px !important;
+            height: 35px !important;
+        }
+
         /* Hide scrollbars */
         ::-webkit-scrollbar {
             display: none !important;
@@ -599,44 +641,24 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Audio player with visible play button
-        audio_bytes = get_audio_url(current_card["chinese"])
-        if audio_bytes:
-            st.markdown("""
-                <style>
-                div.stAudio {
-                    display: flex !important;
-                    justify-content: center !important;
-                    margin: 15px auto !important;
-                }
-                div.stAudio > audio {
-                    width: 180px !important;
-                    height: 40px !important;
-                    filter: grayscale(1) !important;
-                }
-                audio::-webkit-media-controls-panel {
-                    background-color: #f0f0f0 !important;
-                }
-                audio::-webkit-media-controls-play-button {
-                    background-color: #4CAF50 !important;
-                    border-radius: 50% !important;
-                    transform: scale(1.5) !important;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            # Center the audio player
-            col1, col2, col3 = st.columns([1,2,1])
-            with col2:
+        # Controls container with audio and next button
+        st.markdown("""
+            <div class="controls-container">
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            # Audio player
+            audio_bytes = get_audio_url(current_card["chinese"])
+            if audio_bytes:
                 st.audio(audio_bytes, format='audio/mp3')
         
-        # Next button inside main container
-        st.markdown("""
-            <div class="button-container">
-        """, unsafe_allow_html=True)
-        if st.button("Next Card"):
-            st.session_state.index = (st.session_state.index + 1) % len(flashcards)
-            st.rerun()
+        with col2:
+            # Next button
+            if st.button("Next Card"):
+                st.session_state.index = (st.session_state.index + 1) % len(flashcards)
+                st.rerun()
+        
         st.markdown("</div>", unsafe_allow_html=True)
         
         # Close main container
