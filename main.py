@@ -11,83 +11,64 @@ import requests
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
-# Hide Streamlit elements and optimize layout
+# Hide Streamlit elements and make page static
 st.markdown("""
     <style>
         /* Hide Streamlit elements */
-        footer {display: none !important;}
-        #MainMenu {display: none !important;}
-        header {display: none !important;}
+        footer {visibility: hidden !important;}
+        #MainMenu {visibility: hidden !important;}
+        header {visibility: hidden !important;}
         .stDeployButton {display: none !important;}
         .viewerBadge_container__1QSob {display: none !important;}
         .viewerBadge_link__1QSob {display: none !important;}
-        button[title="View fullscreen"] {display: none !important;}
+        button[title="View fullscreen"] {visibility: hidden !important;}
         
-        /* Container optimization */
-        .stApp {
-            margin: 0 !important;
-            padding: 0 !important;
-            max-width: 100vw !important;
-        }
-        
+        /* Make page static */
         .main .block-container {
-            padding: 1rem !important;
-            max-width: 100% !important;
+            padding-bottom: 0px !important;
+            padding-top: 1rem !important;
+            max-height: 100vh !important;
+            overflow-y: hidden !important;
         }
         
-        /* Flashcard layout */
+        .stApp {
+            height: 100vh !important;
+            overflow: hidden !important;
+        }
+        
+        /* Main container styling */
         .main-container {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 15px !important;
-            padding: 10px !important;
-            margin-top: 0 !important;
+            gap: 10px !important;
+            padding: 0 10px !important;
+            margin-bottom: 50px !important;  /* Space for hidden footer */
         }
         
-        /* Controls at top */
-        .controls-container {
-            width: 100% !important;
-            display: flex !important;
-            justify-content: center !important;
-            gap: 20px !important;
-            margin-bottom: 10px !important;
-        }
-        
-        /* Image sizing */
-        .image-container img {
-            width: 100% !important;
-            max-width: 350px !important;
-            border-radius: 15px !important;
-            margin: 0 auto !important;
-        }
-        
-        /* Text styling */
+        /* Content styling */
         .character {
             font-size: 42px !important;
             font-weight: bold !important;
             margin: 5px 0 !important;
-            text-align: center !important;
         }
         
         .pinyin {
             font-size: 20px !important;
             color: #666 !important;
             margin: 5px 0 !important;
-            text-align: center !important;
         }
         
         .explanation {
             font-size: 18px !important;
             font-weight: 500 !important;
-            margin: 5px 0 !important;
-            text-align: center !important;
+            margin: 10px 0 !important;
             padding: 0 15px !important;
         }
         
         /* Audio player */
         div.stAudio {
-            margin: 0 auto !important;
+            margin: 5px auto !important;
             width: 100px !important;
         }
         
@@ -96,10 +77,14 @@ st.markdown("""
             height: 35px !important;
         }
         
-        /* Button styling */
-        .stButton button {
-            width: 100px !important;
-            margin: 0 auto !important;
+        /* Hide scrollbars */
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+        
+        * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -620,28 +605,33 @@ def main():
             <div class="main-container">
         """, unsafe_allow_html=True)
         
-        # Controls at top
-        col1, col2 = st.columns(2)
-        with col1:
-            audio_bytes = get_audio_url(current_card["chinese"])
-            if audio_bytes:
-                st.audio(audio_bytes, format='audio/mp3')
-        with col2:
-            if st.button("Next Card"):
-                st.session_state.index = (st.session_state.index + 1) % len(flashcards)
-                st.rerun()
-        
         # Image
         st.image(current_card['meme_url'], use_column_width=True)
         
-        # Text content
+        # Chinese character
         st.markdown(f"""
-            <div class="text-content">
-                <div class="character">{current_card['chinese']}</div>
-                <div class="pinyin">{current_card['pinyin']}</div>
-                <div class="explanation">{current_card['english']}</div>
-            </div>
+            <div class="character">{current_card['chinese']}</div>
         """, unsafe_allow_html=True)
+        
+        # Pinyin
+        st.markdown(f"""
+            <div class="pinyin">{current_card['pinyin']}</div>
+        """, unsafe_allow_html=True)
+        
+        # Audio below pinyin
+        audio_bytes = get_audio_url(current_card["chinese"])
+        if audio_bytes:
+            st.audio(audio_bytes, format='audio/mp3')
+        
+        # English definition
+        st.markdown(f"""
+            <div class="explanation">{current_card['english']}</div>
+        """, unsafe_allow_html=True)
+        
+        # Next button below definition
+        if st.button("Next Card"):
+            st.session_state.index = (st.session_state.index + 1) % len(flashcards)
+            st.rerun()
         
         # Close main container
         st.markdown("</div>", unsafe_allow_html=True)
