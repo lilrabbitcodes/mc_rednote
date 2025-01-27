@@ -8,6 +8,19 @@ import time
 import tempfile
 import requests
 
+# At the top of the file, add this to hide Streamlit elements
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .stDeployButton {display: none;}
+        .viewerBadge_container__1QSob {display: none;}
+        .viewerBadge_link__1QSob {display: none;}
+        button[title="View fullscreen"] {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
 # Must be the first Streamlit command
 st.set_page_config(page_title="Chinese Meme Flashcards", layout="centered")
 
@@ -266,7 +279,6 @@ def get_audio_url(text):
         
         if text in audio_urls:
             file_id = audio_urls[text]
-            # Get the audio data directly
             url = f"https://drive.google.com/uc?id={file_id}&export=download"
             response = requests.get(url, stream=True)
             if response.status_code == 200:
@@ -545,9 +557,32 @@ def main():
             </div>
         """, unsafe_allow_html=True)
         
-        # Simple audio player
+        # Audio player with visible play button
         audio_bytes = get_audio_url(current_card["chinese"])
         if audio_bytes:
+            st.markdown("""
+                <style>
+                div.stAudio {
+                    display: flex !important;
+                    justify-content: center !important;
+                    margin: 15px auto !important;
+                }
+                div.stAudio > audio {
+                    width: 180px !important;
+                    height: 40px !important;
+                    filter: grayscale(1) !important;
+                }
+                audio::-webkit-media-controls-panel {
+                    background-color: #f0f0f0 !important;
+                }
+                audio::-webkit-media-controls-play-button {
+                    background-color: #4CAF50 !important;
+                    border-radius: 50% !important;
+                    transform: scale(1.5) !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
             # Center the audio player
             col1, col2, col3 = st.columns([1,2,1])
             with col2:
